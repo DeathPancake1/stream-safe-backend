@@ -1,4 +1,6 @@
 node_modules
 package-lock.json
 .env
-prisma
+prisma/migrations
+prisma/dev.db
+prisma/dev.db-journal
