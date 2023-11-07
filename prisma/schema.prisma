@@ -1,0 +1,89 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int     @id @default(autoincrement())
+  email     String  @unique
+  firstname String
+  lastname  String
+  created   DateTime @default(now())
+  deviceId  String  @unique
+
+  // Relationships
+  photo Photo @relation(fields: [photoId], references: [id])
+  photoId   Int @unique
+  subscripedChannels  Channel[] @relation("Subscriptions")
+  ownedChannels Channel[] @relation("OwnedChannels")
+  invitedChannels Channel[] @relation("InvitedUsers")
+}
+
+model Photo {
+  id        Int   @id @default(autoincrement())
+  url       String
+  name      String
+  created   DateTime @default(now())
+
+  // Relationships
+  owner     User?
+  channel   Channel?
+  video     Video?
+}
+
+model Channel {
+  id        Int     @id @default(autoincrement())
+  title     String
+  description String
+  tag      String
+  private   Boolean
+  created DateTime  @default(now())
+  lastActive  DateTime @updatedAt
+
+  // Relationshitps
+  subscriptionPlan  Subscription @relation(fields: [subscriptionId], references: [id])
+  subscriptionId    Int
+  owner User @relation("OwnedChannels", fields: [ownerId], references: [id])
+  ownerId Int
+  thumbnail Photo @relation(fields: [thumbnailId], references: [id])
+  thumbnailId Int @unique
+  videos  Video[]
+  subscribers   User[] @relation("Subscriptions")
+  invitedUsers  User[] @relation("InvitedUsers")
+}
+
+model Video {
+  id        Int     @id @default(autoincrement())
+  title     String
+  description String
+  tag      String
+  created   DateTime @default(now())
+
+  // Relationships
+  thumbnail Photo @relation(fields: [thumbnailId], references: [id])
+  thumbnailId Int @unique
+  channel     Channel @relation(fields: [channelId], references: [id])
+  channelId   Int
+}
+
+model Subscription {
+  id        Int @id @default(autoincrement())
+  title     String
+  description String
+  price     Float
+
+  // Relationships
+  subscripedChannels  Channel[]
+}
+
+model Tag {
+  id        Int @id @default(autoincrement())
+  title     String
+}
