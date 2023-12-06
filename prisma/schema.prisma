@@ -17,10 +17,11 @@ model User {
   lastname  String
   created   DateTime @default(now())
   deviceId  String  @unique
+  publicKey String
 
   // Relationships
-  photo Photo @relation(fields: [photoId], references: [id])
-  photoId   Int @unique
+  photo Photo? @relation(fields: [photoId], references: [id])
+  photoId   Int? @unique
   subscripedChannels  Channel[] @relation("Subscriptions")
   ownedChannels Channel[] @relation("OwnedChannels")
   invitedChannels Channel[] @relation("InvitedUsers")
