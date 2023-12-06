@@ -8,9 +8,10 @@ import { UserModule } from './user/user.module';
 import { JwtStrategy } from './auth/strategy/jwt.strategy';
 import { UserService } from './user/user.service';
 import { PrismaService } from './helpers/database/prisma.service';
+import { DeviceModule } from './device/device.module';
 
 @Module({
-  imports: [UploadFileModule, AuthModule, ConfigModule.forRoot(), UserModule ],
+  imports: [UploadFileModule, AuthModule, ConfigModule.forRoot(), UserModule, DeviceModule ],
   controllers: [AppController],
   providers: [AppService, JwtStrategy, UserService, PrismaService],
 })
