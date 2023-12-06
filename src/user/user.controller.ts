@@ -1,52 +1,33 @@
-import { Body, Controller, HttpException, HttpStatus, Post, UnauthorizedException } from '@nestjs/common';
+import { Body, Controller, HttpException, HttpStatus, Post, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User as UserModel } from '@prisma/client';
 import { ApiResponse, ApiOperation, ApiTags, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
+import { FindUserDto } from './dto/find-user.dto';
+import { JWTAuthGuard } from 'src/auth/guard/jwt-auth.guard';
+import { ApiKeyAuthGruard } from 'src/auth/guard/apikey-auth.guard';
 
+@UseGuards(ApiKeyAuthGruard)
+@ApiBearerAuth('api-key')
+@ApiBearerAuth('JWT-auth')
 @ApiTags('User')
 @Controller('user')
 export class UserController {
     constructor(private readonly userService: UserService) {}
-
-    @ApiBearerAuth()
-    @Post('create')
-    @ApiOperation({ summary: 'Create user' })
-    @ApiResponse({ status: 201, description: 'The record has been successfully created.'})
+    
+    @UseGuards(JWTAuthGuard)
+    @Post('findEmail')
+    @ApiOperation({ summary: 'Find user by email' })
+    @ApiResponse({ status: 201, description: 'The user is found.'})
     @ApiResponse({ status: 403, description: 'Forbidden.' })
     @ApiBody({
-        type: CreateUserDto,
+        type: FindUserDto,
         description: 'Json structure for user object',
     })
-    async signupUser(
-        @Body() userData: CreateUserDto,
+    async findUser(
+        @Body() userData: FindUserDto,
     ): Promise<UserModel> {
-        return this.userService.createUser(userData)
-    }
-
-    @ApiBearerAuth()
-    @Post('login')
-    @ApiOperation({ summary: 'User login' })
-    @ApiResponse({ status: 201, description: 'The user record has successfully returned.'})
-    @ApiResponse({ status: 403, description: 'Forbidden.' })
-    @ApiBody({
-        type: LoginUserDto,
-        description: 'Json structure for user login object',
-    })
-    async login(
-        @Body() userData: LoginUserDto,
-    ): Promise<UserModel> {
-        try{
-            const user = this.userService.user(userData)
-            return user 
-        }
-        catch(error){
-            if(error instanceof UnauthorizedException){
-                throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
-            }
-            throw error
-        }
-        
+        return this.userService.findByEmail(userData.email)
     }
 }
