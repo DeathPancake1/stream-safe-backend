@@ -29,21 +29,4 @@ export class CreateUserDto{
     })
     @IsStrongPassword()
     readonly password: string;
-
-    @ApiProperty({
-        example: 'fhasjkfhdaj',
-        description: 'Lastname of the user',
-    })
-    @IsString()
-    readonly publicKey: string;
-
-    @ApiProperty({
-        example: 'fdlkasjfdalskj',
-        description: 'Lastname of the user',
-    })
-    @IsString()
-    readonly deviceId: string;
-
-    @IsInt()
-    readonly photoId?: number;
 }

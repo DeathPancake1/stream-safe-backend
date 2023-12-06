@@ -17,8 +17,8 @@ model User {
   lastname  String
   password  String
   created   DateTime @default(now())
-  deviceId  String  @unique
-  publicKey String
+  deviceId  String?  @unique
+  publicKey String?
 
   // Relationships
   photo Photo? @relation(fields: [photoId], references: [id])
