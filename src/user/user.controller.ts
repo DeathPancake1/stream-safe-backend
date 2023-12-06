@@ -20,7 +20,7 @@ export class UserController {
         description: 'Json structure for user object',
     })
     async signupUser(
-        @Body() userData: UserModel,
+        @Body() userData: CreateUserDto,
     ): Promise<UserModel> {
         return this.userService.createUser(userData)
     }
