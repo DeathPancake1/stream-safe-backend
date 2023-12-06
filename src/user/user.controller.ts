@@ -8,7 +8,9 @@ import { FindUserDto } from './dto/find-user.dto';
 import { JWTAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { ApiKeyAuthGruard } from 'src/auth/guard/apikey-auth.guard';
 
+// Added guard for Api key check
 @UseGuards(ApiKeyAuthGruard)
+// Adds swagger headers to the request
 @ApiBearerAuth('api-key')
 @ApiBearerAuth('JWT-auth')
 @ApiTags('User')
@@ -16,6 +18,7 @@ import { ApiKeyAuthGruard } from 'src/auth/guard/apikey-auth.guard';
 export class UserController {
     constructor(private readonly userService: UserService) {}
     
+    // Added guard for JWT check
     @UseGuards(JWTAuthGuard)
     @Post('findEmail')
     @ApiOperation({ summary: 'Find user by email' })
