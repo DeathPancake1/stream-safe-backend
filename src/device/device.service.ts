@@ -6,9 +6,10 @@ import { PrismaService } from 'src/helpers/database/prisma.service';
 export class DeviceService {
     constructor(private prisma: PrismaService) {}
 
-    async generateRandId(): Promise<Buffer>{
-        const rand = await crypto.randomBytes(32)
-        return rand
+    async generateRandId(): Promise<string>{
+        const randBytes = await crypto.randomBytes(32);
+        const randHex = randBytes.toString('hex');
+        return randHex
     }
 
     async savePublicId(email: string, publicKey: string, rand: string){

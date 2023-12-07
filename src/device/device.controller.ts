@@ -22,7 +22,7 @@ export class DeviceController {
         @Req() req: any,
     ): Promise<string> {
         const userEmailFromToken = req['userEmail'];
-        const rand = await (await this.deviceService.generateRandId()).toString()
+        const rand = await this.deviceService.generateRandId()
         this.deviceService.savePublicId(userEmailFromToken, userData.publicKey, rand)
         return rand
     }
