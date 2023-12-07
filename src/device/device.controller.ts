@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, HttpException, HttpStatus, Post, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ApiKeyAuthGruard } from 'src/auth/guard/apikey-auth.guard';
 import { JWTAuthGuard } from 'src/auth/guard/jwt-auth.guard';
@@ -22,8 +22,14 @@ export class DeviceController {
         @Req() req: any,
     ): Promise<string> {
         const userEmailFromToken = req['userEmail'];
-        const rand = await this.deviceService.generateRandId()
-        this.deviceService.savePublicId(userEmailFromToken, userData.publicKey, rand)
-        return rand
+        try{
+            const rand = await this.deviceService.generateRandId(userEmailFromToken, userData.publicKey)
+            return rand
+        }
+        catch(error){
+            if(error instanceof UnauthorizedException){
+                throw new HttpException('Updated less than a month ago', HttpStatus.UNAUTHORIZED);
+            }
+        }
     }
 }

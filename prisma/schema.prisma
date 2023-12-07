@@ -18,6 +18,7 @@ model User {
   password  String
   created   DateTime @default(now())
   deviceId  String?  @unique
+  deviceIdLastUpdate   DateTime?
   publicKey String?
 
   // Relationships

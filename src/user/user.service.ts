@@ -26,6 +26,9 @@ export class UserService {
             throw new UnauthorizedException('Invalid password');
         }
         delete user.password;
+        delete user.deviceId;
+        delete user.deviceIdLastUpdate
+        delete user.photoId
         return user;
     }
 
@@ -41,10 +44,13 @@ export class UserService {
             throw new UnauthorizedException('User not found');
         }
         delete user.password;
+        delete user.deviceId;
+        delete user.deviceIdLastUpdate
+        delete user.photoId
         return user;
     }
 
-    async createUser(data: CreateUserDto): Promise<User> {
+    async createUser(data: CreateUserDto): Promise<string> {
         const userCheck = await this.prisma.user.findUnique({
             where: {
                 email: data.email
@@ -56,12 +62,14 @@ export class UserService {
         //hashing the passwords using bcrypt
         const salt = await bcrypt.genSalt();
         const newPassword = await bcrypt.hash(data.password, salt);
-        return this.prisma.user.create({
+        const newUser = await this.prisma.user.create({
             data: {
                 ...data,
                 password: newPassword
             }
         });
+        const email = newUser.email
+        return email
     }
 
     // async updateUser(params: {

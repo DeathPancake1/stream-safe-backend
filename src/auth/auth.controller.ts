@@ -49,7 +49,7 @@ export class AuthController {
   })
   @Post('register')
   async register(
-    @Body() userData: CreateUserDto,): Promise<User> {
+    @Body() userData: CreateUserDto,): Promise<string> {
       try{
         const user = await this.userService.createUser(userData);
         return user;
