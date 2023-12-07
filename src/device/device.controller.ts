@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ApiKeyAuthGruard } from 'src/auth/guard/apikey-auth.guard';
 import { JWTAuthGuard } from 'src/auth/guard/jwt-auth.guard';
@@ -19,7 +19,11 @@ export class DeviceController {
     @Post('getId')
     async getDeviceId (
         @Body() userData: DeviceIdDto,
+        @Req() req: any,
     ): Promise<string> {
-        return "Not implemented"
+        const userEmailFromToken = req['userEmail'];
+        const rand = await (await this.deviceService.generateRandId()).toString()
+        this.deviceService.savePublicId(userEmailFromToken, userData.publicKey, rand)
+        return rand
     }
 }

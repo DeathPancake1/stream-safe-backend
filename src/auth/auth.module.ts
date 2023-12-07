@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { PassportModule } from '@nestjs/passport';
 import { ApiKeyStrategy } from './strategy/apikey.strategy';
@@ -14,7 +14,7 @@ import { PrismaService } from 'src/helpers/database/prisma.service';
     UserModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: '12h' },
+      signOptions: { expiresIn: '24h' },
     }),
   ],
   providers: [AuthService, ApiKeyStrategy, UserService, PrismaService],
