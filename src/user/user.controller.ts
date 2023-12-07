@@ -23,7 +23,7 @@ export class UserController {
     @Post('findEmail')
     @ApiOperation({ summary: 'Find user by email' })
     @ApiResponse({ status: 201, description: 'The user is found.'})
-    @ApiResponse({ status: 403, description: 'Forbidden.' })
+    @ApiResponse({ status: 401, description: 'Forbidden.' })
     @ApiBody({
         type: FindUserDto,
         description: 'Json structure for user object',

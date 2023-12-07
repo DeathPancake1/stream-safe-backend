@@ -20,7 +20,7 @@ export class AuthController {
 
   @ApiOperation({ summary: 'User login' })
   @ApiResponse({ status: 201, description: 'The user record has successfully returned.'})
-  @ApiResponse({ status: 403, description: 'Forbidden.' })
+  @ApiResponse({ status: 401, description: 'Forbidden.' })
   @ApiBody({
       type: LoginUserDto,
       description: 'Json structure for user login object',
@@ -42,7 +42,7 @@ export class AuthController {
 
   @ApiOperation({ summary: 'Create user' })
   @ApiResponse({ status: 201, description: 'The record has been successfully created.'})
-  @ApiResponse({ status: 403, description: 'Forbidden.' })
+  @ApiResponse({ status: 401, description: 'Forbidden.' })
   @ApiBody({
       type: CreateUserDto,
       description: 'Json structure for user object',

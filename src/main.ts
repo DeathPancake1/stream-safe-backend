@@ -25,7 +25,7 @@ async function bootstrap() {
       {
         type: 'apiKey',
         name: 'api-key',
-        description: 'Your custom header description',
+        description: 'The secret key to the api',
         in: 'header',
       },
       'api-key',

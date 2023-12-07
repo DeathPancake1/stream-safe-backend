@@ -1,5 +1,5 @@
 import { Body, Controller, HttpException, HttpStatus, Post, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ApiKeyAuthGruard } from 'src/auth/guard/apikey-auth.guard';
 import { JWTAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { DeviceIdDto } from './dto/deviceId-request.dto';
@@ -17,6 +17,13 @@ export class DeviceController {
     constructor(private readonly deviceService: DeviceService) {}
 
     @Post('getId')
+    @ApiOperation({ summary: 'Get a random generated device id' })
+    @ApiResponse({ status: 201, description: 'The random id is returned.'})
+    @ApiResponse({ status: 401, description: 'Forbidden.' })
+    @ApiBody({
+        type: DeviceIdDto,
+        description: 'Json structure for id request object',
+    })
     async getDeviceId (
         @Body() userData: DeviceIdDto,
         @Req() req: any,
