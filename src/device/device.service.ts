@@ -60,4 +60,22 @@ export class DeviceService {
             throw new UnauthorizedException('Device updated less than a month ago');
         }
     }
+
+    async checkAccountLock(email: string): Promise<boolean>{
+        const user = await this.prisma.user.findUnique({
+            where: {
+                email: email
+            }
+        })
+        return user.deviceId? true: false
+    }
+
+    async validateId(email: string, deviceId: string): Promise<boolean>{
+        const user = await this.prisma.user.findUnique({
+            where: {
+                email: email
+            }
+        })
+        return user.deviceId === deviceId
+    }
 }
