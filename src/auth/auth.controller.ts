@@ -26,11 +26,16 @@ export class AuthController {
       description: 'Json structure for user login object',
   })
   @Post('login')
-  async login(@Body() userData: LoginUserDto,): Promise<{token: {accessToken: string}}> {
+  async login(@Body() userData: LoginUserDto,): Promise<{user: {email: string}, token: {accessToken: string}}> {
     try{
       const user = await this.authService.validateUser(userData)
       const token = await this.authService.login(user);
-      return { token };
+      return { 
+        user:{
+          email: user.email
+        },
+        token 
+      };
     }
     catch(error){
       if(error instanceof UnauthorizedException){
