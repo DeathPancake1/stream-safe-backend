@@ -28,7 +28,8 @@ export class AuthController {
   @Post('login')
   async login(@Body() userData: LoginUserDto,): Promise<{user: {email: string}, token: {accessToken: string}}> {
     try{
-      const user = await this.authService.validateUser(userData)
+      const email = userData.email.toLowerCase()
+      const user = await this.authService.validateUser({...userData, email})
       const token = await this.authService.login(user);
       return { 
         user:{
@@ -56,7 +57,8 @@ export class AuthController {
   async register(
     @Body() userData: CreateUserDto,): Promise<string> {
       try{
-        const user = await this.userService.createUser(userData);
+        const email = userData.email.toLowerCase()
+        const user = await this.userService.createUser({...userData, email});
         return user;
       }catch(error){
         if(error instanceof UnauthorizedException){
