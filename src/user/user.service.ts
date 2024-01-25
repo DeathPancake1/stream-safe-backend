@@ -50,6 +50,40 @@ export class UserService {
         return user;
     }
 
+    async searchByEmail(
+        email: string,
+        userEmailFromToken: string
+    ): Promise<User[] | null> {
+        const users = await this.prisma.user.findMany({
+            where: {
+                AND:[
+                    {
+                        email:{
+                            contains: email,
+                        },
+                    },
+                    {
+                        email:{
+                            not:userEmailFromToken
+                        }
+                    }
+                ]
+                
+            }
+        })
+        if (!users) {
+            throw new UnauthorizedException('User not found');
+        }
+        for(let i = 0; i < users.length;i++){
+            // it doesnt output these properties
+            delete users[i].password;
+            delete users[i].deviceId;
+            delete users[i].deviceIdLastUpdate
+            delete users[i].photoId
+        } 
+        return users;
+    }
+
     async createUser(data: CreateUserDto): Promise<string> {
         const userCheck = await this.prisma.user.findUnique({
             where: {

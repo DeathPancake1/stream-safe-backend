@@ -1,4 +1,4 @@
-import { Body, Controller, HttpException, HttpStatus, Post, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { Body, Controller, HttpException, HttpStatus, Post, UnauthorizedException, UseGuards,Req } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User as UserModel } from '@prisma/client';
 import { ApiResponse, ApiOperation, ApiTags, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
@@ -10,6 +10,7 @@ import { ApiKeyAuthGruard } from 'src/auth/guard/apikey-auth.guard';
 
 // Added guard for Api key check
 @UseGuards(ApiKeyAuthGruard)
+@UseGuards(JWTAuthGuard)
 // Adds swagger headers to the request
 @ApiBearerAuth('api-key')
 @ApiBearerAuth('JWT-auth')
@@ -17,9 +18,7 @@ import { ApiKeyAuthGruard } from 'src/auth/guard/apikey-auth.guard';
 @Controller('user')
 export class UserController {
     constructor(private readonly userService: UserService) {}
-    
     // Added guard for JWT check
-    @UseGuards(JWTAuthGuard)
     @Post('findEmail')
     @ApiOperation({ summary: 'Find user by email' })
     @ApiResponse({ status: 201, description: 'The user is found.'})
@@ -32,5 +31,21 @@ export class UserController {
         @Body() userData: FindUserDto,
     ): Promise<UserModel> {
         return this.userService.findByEmail(userData.email)
+    }
+    @Post('SearchUser')
+    @ApiOperation({ summary: 'search for another user by email excluding his self email' })
+    @ApiResponse({ status: 201, description: 'The user is found.'})
+    @ApiResponse({ status: 401, description: 'Forbidden.' })
+    @ApiBody({
+        type: FindUserDto,
+        description: 'Json structure for user object',
+    })
+    async SearchUser(
+        @Body() userData: FindUserDto,
+        @Req() req:any,
+    ): Promise<UserModel[]> {
+        const userEmailFromToken = req['userEmail'];
+        console.log(req);
+        return this.userService.searchByEmail(userData.email,userEmailFromToken)
     }
 }
