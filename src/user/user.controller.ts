@@ -45,7 +45,6 @@ export class UserController {
         @Req() req:any,
     ): Promise<UserModel[]> {
         const userEmailFromToken = req['userEmail'];
-        console.log(req);
         return this.userService.searchByEmail(userData.email,userEmailFromToken)
     }
 }

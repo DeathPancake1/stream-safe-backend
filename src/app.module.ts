@@ -21,5 +21,8 @@ export class AppModule {
     consumer
       .apply(AuthMiddleware)
       .forRoutes('device');
+    consumer
+      .apply(AuthMiddleware)
+      .forRoutes('user');
   }
 }
