@@ -5,24 +5,28 @@ import { ExchangedKeys, User } from '@prisma/client'
 @Injectable()
 export class ExchangedKeysService {
     constructor(private prisma: PrismaService) {}
-    async exchangeSymmetricKey(user1Email: string, user2Email: string, key: string): Promise<Boolean>{
-        const user1 = await this.prisma.user.findUnique({
+    async exchangeSymmetricKey(senderEmail: string, receiverEmail: string, key: string): Promise<Boolean>{
+        const sender = await this.prisma.user.findUnique({
             where: {
-                email: user1Email
+                email: senderEmail
             }
         })
-        const user2 = await this.prisma.user.findUnique({
+        const receiver = await this.prisma.user.findUnique({
             where: {
-                email: user2Email
+                email: receiverEmail
             }
         })
-        if (!user1 || !user2) {
+        if (!sender || !receiver) {
             throw new UnauthorizedException('User not found');
+        }
+        const exists = await this.checkConversationKey(senderEmail, receiverEmail)
+        if(exists){
+            throw new UnauthorizedException('Key already exists');
         }
         await this.prisma.exchangedKeys.create({
             data: {
-                senderEmail: user1Email,
-                receiverEmail: user2Email,
+                senderEmail: senderEmail,
+                receiverEmail: receiverEmail,
                 encryptedKey: key,
                 seen: false
             }
