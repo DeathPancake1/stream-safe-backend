@@ -4,7 +4,7 @@ import { ApiKeyAuthGruard } from 'src/auth/guard/apikey-auth.guard';
 import { JWTAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { DeviceIdDto } from './dto/deviceId-request.dto';
 import { DeviceService } from './device.service';
-import { CheckDeviceDto } from 'src/user/dto/check-device.dto';
+import { CheckDeviceDto } from 'src/device/dto/check-device.dto';
 
 // Added guard for Api key check
 @UseGuards(ApiKeyAuthGruard)

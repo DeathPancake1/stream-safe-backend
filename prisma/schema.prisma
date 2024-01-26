@@ -89,3 +89,12 @@ model Tag {
   id        Int @id @default(autoincrement())
   title     String
 }
+
+model ExchangedKeys{
+  id  Int @id @default(autoincrement())
+  senderEmail  String
+  receiverEmail  String
+  seen  Boolean
+  encryptedKey String 
+}
+

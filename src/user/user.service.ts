@@ -1,9 +1,10 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from 'src/helpers/database/prisma.service';
-import { User } from '@prisma/client'
+import { ExchangedKeys, User } from '@prisma/client'
 import { LoginUserDto } from './dto/login-user.dto';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from './dto/create-user.dto';
+import { FindUserDto } from './dto/find-user.dto';
 
 @Injectable()
 export class UserService {
@@ -50,6 +51,45 @@ export class UserService {
         return user;
     }
 
+    async searchByEmail(
+        email: string,
+        userEmailFromToken: string
+    ): Promise<User[] | null> {
+        const users = await this.prisma.user.findMany({
+            where: {
+                AND:[
+                    {
+                        email:{
+                            contains: email,
+                        },
+                    },
+                    {
+                        email:{
+                            not:userEmailFromToken
+                        }
+                    },
+                    {
+                        publicKey: {
+                            not: null
+                        }
+                    }
+                ]
+                
+            }
+        })
+        if (users.length==0) {
+            throw new UnauthorizedException('User not found');
+        }
+        for(let i = 0; i < users.length;i++){
+            // it doesnt output these properties
+            delete users[i].password;
+            delete users[i].deviceId;
+            delete users[i].deviceIdLastUpdate
+            delete users[i].photoId
+        } 
+        return users;
+    }
+
     async createUser(data: CreateUserDto): Promise<string> {
         const userCheck = await this.prisma.user.findUnique({
             where: {
@@ -71,7 +111,6 @@ export class UserService {
         const email = newUser.email
         return email
     }
-
     // async updateUser(params: {
     //     where: Prisma.UserWhereUniqueInput;
     //     data: Prisma.UserUpdateInput;
