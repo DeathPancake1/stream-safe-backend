@@ -92,9 +92,9 @@ model Tag {
 
 model ExchangedKeys{
   id  Int @id @default(autoincrement())
-  user1Email  String
-  user2Email  String
+  senderEmail  String
+  receiverEmail  String
   seen  Boolean
-  key String
+  encryptedKey String 
 }
 

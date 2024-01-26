@@ -10,9 +10,11 @@ import { UserService } from './user/user.service';
 import { PrismaService } from './helpers/database/prisma.service';
 import { DeviceModule } from './device/device.module';
 import { AuthMiddleware } from './auth/auth.middleware';
+import { ExchangedKeysController } from './exchanged-keys/exchanged-keys.controller';
+import { ExchangedKeysModule } from './exchanged-keys/exchanged-keys.module';
 
 @Module({
-  imports: [UploadFileModule, AuthModule, ConfigModule.forRoot(), UserModule, DeviceModule ],
+  imports: [UploadFileModule, AuthModule, ConfigModule.forRoot(), UserModule, DeviceModule, ExchangedKeysModule ],
   controllers: [AppController],
   providers: [AppService, JwtStrategy, UserService, PrismaService],
 })
@@ -24,5 +26,8 @@ export class AppModule {
     consumer
       .apply(AuthMiddleware)
       .forRoutes('user');
+    consumer
+      .apply(AuthMiddleware)
+      .forRoutes('exchanged-keys');
   }
 }

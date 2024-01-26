@@ -5,7 +5,6 @@ import { ApiResponse, ApiOperation, ApiTags, ApiBody, ApiBearerAuth } from '@nes
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { FindUserDto } from './dto/find-user.dto';
-import { ExchangeSymmetricDto } from './dto/exchange-symmetric.dto';
 import { JWTAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { ApiKeyAuthGruard } from 'src/auth/guard/apikey-auth.guard';
 
@@ -33,7 +32,7 @@ export class UserController {
     ): Promise<UserModel> {
         return this.userService.findByEmail(userData.email)
     }
-    @Post('SearchUser')
+    @Post('searchUser')
     @ApiOperation({ summary: 'search for another user by email excluding his self email' })
     @ApiResponse({ status: 201, description: 'The user is found.'})
     @ApiResponse({ status: 401, description: 'Forbidden.' })
@@ -47,34 +46,5 @@ export class UserController {
     ): Promise<UserModel[]> {
         const userEmailFromToken = req['userEmail'];
         return this.userService.searchByEmail(userData.email,userEmailFromToken)
-    }
-    @Post('exchangeSymmetric')
-    @ApiOperation({ summary: 'Exchange symmetric keys between the sender and the reciever for the first communication' })
-    @ApiResponse({ status: 201, description: 'Message sent successfully'})
-    @ApiResponse({ status: 401, description: 'cant find users' })
-
-    @ApiBody({
-        type: ExchangeSymmetricDto,
-        description: 'Json structure that contains user1 and user2 emails and the exchanged key',
-    })
-
-    async exchangeSymmetric(
-        @Body() user2Data: ExchangeSymmetricDto,
-        @Req() req:any,
-    ): Promise<Boolean> {
-        const userEmailFromToken = req['userEmail'];
-        return this.userService.exchangeSymmetricKey(userEmailFromToken,user2Data.email,user2Data.key)
-    }
-
-    @Get('receiverSeen')
-    @ApiOperation({ summary: 'The receiver received the symmetric key' })
-    @ApiResponse({ status: 201, description: 'Seen'})
-    @ApiResponse({ status: 401, description: 'no new keys found for this user' })
-
-    async receiverSeen(
-        @Req() req:any,
-    ): Promise<ExchangedKeysModel[]> {
-        const userEmailFromToken = req['userEmail'];
-        return this.userService.receiverSeen(userEmailFromToken);
     }
 }

@@ -9,7 +9,7 @@ export class ExchangeSymmetricDto{
     @IsEmail()
     readonly email: string;
     @ApiProperty({
-        example: 'abbkjal@@#@#@GLHGUEYLDbvhldslvg@ijifg',
+        example: 'abbkjal@@#@#@GLHGUEYLDbvhldslvg@',
         description: 'The symmetric key',
     })
     @IsString()
