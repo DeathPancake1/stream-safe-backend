@@ -67,6 +67,11 @@ export class UserService {
                         email:{
                             not:userEmailFromToken
                         }
+                    },
+                    {
+                        publicKey: {
+                            not: null
+                        }
                     }
                 ]
                 
