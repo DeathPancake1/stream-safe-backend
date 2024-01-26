@@ -52,4 +52,26 @@ export class ExchangedKeysService {
         }
         return keys
     }
+
+    async checkConversationKey(
+        senderEmail: string,
+        receiverEmail: string
+    ): Promise<Boolean>{
+        const exchanged = await this.prisma.exchangedKeys.findFirst({
+            where:{
+                OR: [
+                    {
+                        senderEmail: senderEmail,
+                        receiverEmail: receiverEmail,
+                    },
+                    {
+                        senderEmail: receiverEmail,
+                        receiverEmail: senderEmail,
+                    },
+                ],
+            }
+        })
+
+        return !!exchanged;
+    }
 }

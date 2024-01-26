@@ -5,6 +5,7 @@ import { ApiResponse, ApiOperation, ApiTags, ApiBody, ApiBearerAuth } from '@nes
 import { ExchangeSymmetricDto } from './dto/exchange-symmetric.dto';
 import { JWTAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { ApiKeyAuthGruard } from 'src/auth/guard/apikey-auth.guard';
+import { CheckExchangedDTO } from './dto/check-exchanged.dto';
 
 // Added guard for Api key check
 @UseGuards(ApiKeyAuthGruard)
@@ -23,20 +24,20 @@ export class ExchangedKeysController {
 
     @ApiBody({
         type: ExchangeSymmetricDto,
-        description: 'Json structure that contains user1 and user2 emails and the exchanged key',
+        description: 'Json structure that contains sender and reciever emails and the encrypted exchanged key',
     })
 
     async exchangeSymmetric(
-        @Body() user2Data: ExchangeSymmetricDto,
+        @Body() data: ExchangeSymmetricDto,
         @Req() req:any,
     ): Promise<Boolean> {
         const userEmailFromToken = req['userEmail'];
-        return this.exchangedKeysService.exchangeSymmetricKey(userEmailFromToken,user2Data.email,user2Data.key)
+        return this.exchangedKeysService.exchangeSymmetricKey(userEmailFromToken,data.email,data.key)
     }
 
     @Get('receiverSeen')
     @ApiOperation({ summary: 'The receiver received the symmetric key' })
-    @ApiResponse({ status: 201, description: 'Seen'})
+    @ApiResponse({ status: 200, description: 'Seen'})
     @ApiResponse({ status: 401, description: 'no new keys found for this user' })
 
     async receiverSeen(
@@ -44,6 +45,24 @@ export class ExchangedKeysController {
     ): Promise<ExchangedKeysModel[]> {
         const userEmailFromToken = req['userEmail'];
         return this.exchangedKeysService.receiverSeen(userEmailFromToken);
+    }
+
+    @Post('checkConversationKey')
+    @ApiOperation({ summary: 'Exchange symmetric keys between the sender and the reciever for the first communication' })
+    @ApiResponse({ status: 201, description: 'Message sent successfully'})
+    @ApiResponse({ status: 401, description: 'cant find users' })
+
+    @ApiBody({
+        type: CheckExchangedDTO,
+        description: 'Json structure that contains sender and reciever emails and the encrypted exchanged key',
+    })
+
+    async checkConversationKey(
+        @Body() data: CheckExchangedDTO,
+        @Req() req:any,
+    ): Promise<Boolean> {
+        const userEmailFromToken = req['userEmail'];
+        return this.exchangedKeysService.checkConversationKey(userEmailFromToken,data.email)
     }
 
 }
