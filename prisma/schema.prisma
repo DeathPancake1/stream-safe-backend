@@ -90,11 +90,20 @@ model Tag {
   title     String
 }
 
-model ExchangedKeys{
+model ExchangedKey{
   id  Int @id @default(autoincrement())
   senderEmail  String
   receiverEmail  String
   seen  Boolean
   encryptedKey String 
+  files SavedFile[]
 }
 
+model SavedFile{
+  id  Int @id @default(autoincrement())
+  name  String
+  path String
+  exchangedKey  ExchangedKey @relation(fields:[idOfEncryptedKey],references: [id])
+  idOfEncryptedKey Int
+  size  Int
+}

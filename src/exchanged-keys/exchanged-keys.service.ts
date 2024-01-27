@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from 'src/helpers/database/prisma.service';
-import { ExchangedKeys, User } from '@prisma/client'
+import { ExchangedKey, User } from '@prisma/client'
 
 @Injectable()
 export class ExchangedKeysService {
@@ -23,7 +23,7 @@ export class ExchangedKeysService {
         if(exists){
             throw new UnauthorizedException('Key already exists');
         }
-        await this.prisma.exchangedKeys.create({
+        await this.prisma.exchangedKey.create({
             data: {
                 senderEmail: senderEmail,
                 receiverEmail: receiverEmail,
@@ -35,14 +35,14 @@ export class ExchangedKeysService {
     }
     async receiverSeen(
             userEmail: string
-        ): Promise<ExchangedKeys[]>{
-        const keys = await this.prisma.exchangedKeys.findMany({
+        ): Promise<ExchangedKey[]>{
+        const keys = await this.prisma.exchangedKey.findMany({
             where:{
                 receiverEmail: userEmail,
                 seen:false
             }
         })
-        await this.prisma.exchangedKeys.updateMany({
+        await this.prisma.exchangedKey.updateMany({
             where:{
                 receiverEmail: userEmail,
                 seen:false
@@ -61,7 +61,7 @@ export class ExchangedKeysService {
         senderEmail: string,
         receiverEmail: string
     ): Promise<Boolean>{
-        const exchanged = await this.prisma.exchangedKeys.findFirst({
+        const exchanged = await this.prisma.exchangedKey.findFirst({
             where:{
                 OR: [
                     {

@@ -1,6 +1,6 @@
 import { Body, Controller, HttpException, HttpStatus, Post, UnauthorizedException, UseGuards,Req, Get } from '@nestjs/common';
 import { ExchangedKeysService } from './exchanged-keys.service';
-import { ExchangedKeys as ExchangedKeysModel, User as UserModel } from '@prisma/client';
+import { ExchangedKey as ExchangedKeysModel, User as UserModel } from '@prisma/client';
 import { ApiResponse, ApiOperation, ApiTags, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 import { ExchangeSymmetricDto } from './dto/exchange-symmetric.dto';
 import { JWTAuthGuard } from 'src/auth/guard/jwt-auth.guard';
