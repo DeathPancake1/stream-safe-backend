@@ -34,7 +34,7 @@ export class FilesController {
             destination: (req,file, cb)=>{
                 var temp=''
                 if(req.body.senderEmail>req.body.receiverEmail){
-                    temp = `./storage/videos/${req.body.senderEmail}_${req.body.senderEmail}`;
+                    temp = `./storage/videos/${req.body.senderEmail}_${req.body.receiverEmail}`;
                 }
                 else{
                     temp = `./storage/videos/${req.body.receiverEmail}_${req.body.senderEmail}`;
