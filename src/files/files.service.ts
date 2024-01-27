@@ -7,18 +7,18 @@ import { SavedFile } from '@prisma/client';
 @Injectable()
 export class FilesService {
     constructor(private prisma: PrismaService) {}
-    async uploadFile(senderEmail,videoInfo: uploadFileDto,file: Express.Multer.File) {
+    async uploadFile(videoInfo: uploadFileDto,file: Express.Multer.File) {
         const videoInfoTemp = JSON.parse(JSON.stringify(videoInfo))
         const conv = await this.prisma.exchangedKey.findFirst({
             where:{
                 OR:[
                     {AND:[
-                        {senderEmail:senderEmail},
+                        {senderEmail:videoInfoTemp.senderEmail},
                         {receiverEmail:videoInfoTemp.receiverEmail}
                     ]},
                     {AND:[
                         {senderEmail:videoInfoTemp.receiverEmail},
-                        {receiverEmail:senderEmail}
+                        {receiverEmail:videoInfoTemp.senderEmail}
                     ]
                     }
                 ]

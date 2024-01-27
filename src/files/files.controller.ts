@@ -22,15 +22,23 @@ import { FilesService } from './files.service';
 export class FilesController {
     constructor(private readonly filesService: FilesService) {}
     @Post('upload')
+    @ApiResponse({ status: 201, description: 'file is sent successfully'})
+    @ApiResponse({ status: 401, description: 'failed to find the key between two user' })
     @ApiBody({
         type: uploadFileDto,
-        description: 'the id of the encrypted symmetric key and the name of the video',
+        description: 'the sender and receiver of the encrypted symmetric key and the name of the video',
     })
     @ApiConsumes('multipart/form-data')
     @UseInterceptors(FileInterceptor('file',{
         storage: diskStorage({
             destination: (req,file, cb)=>{
-                const temp = `./storage/videos/${req.body.id}`;
+                var temp=''
+                if(req.body.senderEmail>req.body.receiverEmail){
+                    temp = `./storage/videos/${req.body.senderEmail}_${req.body.senderEmail}`;
+                }
+                else{
+                    temp = `./storage/videos/${req.body.receiverEmail}_${req.body.senderEmail}`;
+                }
                 if (!fs.existsSync(temp)) {
                     // Create the directory
                     fs.mkdirSync(temp);
@@ -49,6 +57,6 @@ export class FilesController {
         @Req() req:any
         ) {
             const userEmailFromToken = req['userEmail'];
-            return this.filesService.uploadFile(userEmailFromToken,videoInfo,file);
+            return this.filesService.uploadFile(videoInfo,file);
         }
 }
