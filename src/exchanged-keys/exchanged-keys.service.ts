@@ -51,9 +51,6 @@ export class ExchangedKeysService {
                 seen:true
             }
         })
-        if(keys.length==0){
-            throw new UnauthorizedException('No new keys found');
-        }
         return keys
     }
 

@@ -1,4 +1,4 @@
-import { Body, Controller, HttpException, HttpStatus, Post, UnauthorizedException, UseGuards,Req, Get } from '@nestjs/common';
+import { Body, Controller, HttpException, HttpStatus, Post, UnauthorizedException, UseGuards,Req, Get, HttpCode, Res } from '@nestjs/common';
 import { ExchangedKeysService } from './exchanged-keys.service';
 import { ExchangedKey as ExchangedKeysModel, User as UserModel } from '@prisma/client';
 import { ApiResponse, ApiOperation, ApiTags, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
@@ -38,13 +38,19 @@ export class ExchangedKeysController {
     @Get('receiverSeen')
     @ApiOperation({ summary: 'The receiver received the symmetric key' })
     @ApiResponse({ status: 200, description: 'Seen'})
-    @ApiResponse({ status: 401, description: 'no new keys found for this user' })
-
+    @ApiResponse({ status: 304, description: 'no new keys found for this user' })
     async receiverSeen(
         @Req() req:any,
+        @Res() res: any
     ): Promise<ExchangedKeysModel[]> {
         const userEmailFromToken = req['userEmail'];
-        return this.exchangedKeysService.receiverSeen(userEmailFromToken);
+        const keys = await this.exchangedKeysService.receiverSeen(userEmailFromToken);
+        if (keys.length === 0) {
+            res.status(304).send();
+            return;
+        }
+      
+        return keys;
     }
 
     @Post('checkConversationKey')
