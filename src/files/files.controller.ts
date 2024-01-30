@@ -6,7 +6,7 @@ import { ApiKeyAuthGruard } from 'src/auth/guard/apikey-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
-import { uploadFileDto } from './dto/upload-file.dto';
+import { UploadFileDto } from './dto/upload-file.dto';
 import * as fs from 'fs';
 import { PrismaService } from 'src/helpers/database/prisma.service';
 import { FilesService } from './files.service';
@@ -27,7 +27,7 @@ export class FilesController {
     @ApiResponse({ status: 400, description: 'Bad Request'})
     @ApiResponse({ status: 401, description: 'Failed to find the key between two users' })
     @ApiBody({
-        type: uploadFileDto,
+        type: UploadFileDto,
         description: 'The sender and receiver of the encrypted symmetric key and the name of the video',
     })
     @ApiConsumes('multipart/form-data')
@@ -51,7 +51,7 @@ export class FilesController {
         })
     }))
     async uploadFile(
-        @Body() videoInfo: uploadFileDto,
+        @Body() videoInfo: UploadFileDto,
         @UploadedFile() file: Express.Multer.File,
         @Req() req: any
     ) {

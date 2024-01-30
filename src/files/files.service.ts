@@ -1,5 +1,5 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
-import { uploadFileDto } from './dto/upload-file.dto';
+import { UploadFileDto } from './dto/upload-file.dto';
 import { PrismaService } from 'src/helpers/database/prisma.service';
 import { SavedFile, ExchangedKey } from '@prisma/client';
 
@@ -7,7 +7,7 @@ import { SavedFile, ExchangedKey } from '@prisma/client';
 export class FilesService {
     constructor(private prisma: PrismaService) {}
 
-    async uploadFile(videoInfo: uploadFileDto, file: Express.Multer.File, emailFromToken: string): Promise<SavedFile> {
+    async uploadFile(videoInfo: UploadFileDto, file: Express.Multer.File, emailFromToken: string): Promise<SavedFile> {
         try {
             if (!videoInfo || !file) {
                 throw new HttpException('Bad Request - Missing required parameters', HttpStatus.BAD_REQUEST);
