@@ -1,6 +1,6 @@
 import { Body, Controller, HttpException, HttpStatus, Post, UnauthorizedException, UseGuards,Req, Get } from '@nestjs/common';
 import { UserService } from './user.service';
-import { ExchangedKeys as ExchangedKeysModel, User as UserModel } from '@prisma/client';
+import { ExchangedKey as ExchangedKeysModel, User as UserModel } from '@prisma/client';
 import { ApiResponse, ApiOperation, ApiTags, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';

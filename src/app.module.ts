@@ -1,7 +1,4 @@
-import { MiddlewareConsumer, Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { UploadFileModule } from './upload-file/upload-file.module';
+import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { UserModule } from './user/user.module';
@@ -12,22 +9,24 @@ import { DeviceModule } from './device/device.module';
 import { AuthMiddleware } from './auth/auth.middleware';
 import { ExchangedKeysController } from './exchanged-keys/exchanged-keys.controller';
 import { ExchangedKeysModule } from './exchanged-keys/exchanged-keys.module';
+import { FilesController } from './files/files.controller';
+import { FilesService } from './files/files.service';
+import { FilesModule } from './files/files.module';
 
 @Module({
-  imports: [UploadFileModule, AuthModule, ConfigModule.forRoot(), UserModule, DeviceModule, ExchangedKeysModule ],
-  controllers: [AppController],
-  providers: [AppService, JwtStrategy, UserService, PrismaService],
+  imports: [ AuthModule, ConfigModule.forRoot(), UserModule, DeviceModule, ExchangedKeysModule, FilesModule ],
+  controllers: [ FilesController],
+  providers: [ JwtStrategy, UserService, PrismaService, FilesService],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(AuthMiddleware)
-      .forRoutes('device');
-    consumer
-      .apply(AuthMiddleware)
-      .forRoutes('user');
-    consumer
-      .apply(AuthMiddleware)
-      .forRoutes('exchanged-keys');
+      .exclude(
+        { path: 'auth', method: RequestMethod.GET },
+        { path: 'auth', method: RequestMethod.POST },
+        'auth/(.*)',
+      )
+      .forRoutes('');
   }
 }
