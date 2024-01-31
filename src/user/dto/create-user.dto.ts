@@ -27,6 +27,6 @@ export class CreateUserDto{
         example: 'password',
         description: 'Password of the user',
     })
-    @IsStrongPassword()
+    @IsString()
     readonly password: string;
 }
