@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { UserModule } from './user/user.module';
@@ -22,15 +22,11 @@ export class AppModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(AuthMiddleware)
-      .forRoutes('device');
-    consumer
-      .apply(AuthMiddleware)
-      .forRoutes('user');
-    consumer
-      .apply(AuthMiddleware)
-      .forRoutes('exchanged-keys');
-    consumer
-      .apply(AuthMiddleware)
-      .forRoutes('files');
+      .exclude(
+        { path: 'auth', method: RequestMethod.GET },
+        { path: 'auth', method: RequestMethod.POST },
+        'auth/(.*)',
+      )
+      .forRoutes('');
   }
 }

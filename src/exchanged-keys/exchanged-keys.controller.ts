@@ -35,7 +35,7 @@ export class ExchangedKeysController {
         return this.exchangedKeysService.exchangeSymmetricKey(userEmailFromToken,data.email,data.key)
     }
 
-    @Get('receiverDelivered')
+    @Get('/')
     @ApiOperation({ summary: 'The receiver received the symmetric key' })
     @ApiResponse({ status: 200, description: 'Seen'})
     @ApiResponse({ status: 304, description: 'no new keys found for this user' })
