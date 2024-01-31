@@ -4,15 +4,9 @@ import { IsEmail, IsInt, IsString } from "class-validator";
 
 export class DownloadFileDto{
     @ApiProperty({
-        example: "john1@example.com",
-        description: 'email of sender ',
+        example: "storage\\videos\\amged@gmail.com_adam@gmail.com\\67104ad58e01e186d5dc104eae0368102ce.txt",
+        description: 'path of video needed ',
     })
-    @IsEmail()
-    readonly senderEmail: string;
-    @ApiProperty({
-        example: "john2@example.com",
-        description: 'email of receiver ',
-    })
-    @IsEmail()
-    readonly receiverEmail: string;
+    @IsString()
+    readonly path: string;
 }

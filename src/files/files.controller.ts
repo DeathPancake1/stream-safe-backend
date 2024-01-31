@@ -120,21 +120,26 @@ export class FilesController {
             throw new HttpException(error.message || 'unauthorized', HttpStatus.UNAUTHORIZED);
         }
     }
-    // @Post('downloadVideo')
-    // @ApiOperation({ summary: 'download certain video' })
-    // @ApiBody({
-    //     type: GetMessagesFromChatDto,
-    //     description: 'The email of the other user',
-    // })
-    // async downloadVideo(
-    //     @Body() otherUser: GetMessagesFromChatDto,
-    //     @Res() resizeBy,
-    //     @Req() req
-    // ){
-    //     const userEmailFromToken = req['userEmail'];
-    //     const temp = otherUser.email > userEmailFromToken
-    //                 ? `./storage/videos/${otherUser.email}_${userEmailFromToken}`
-    //                 : `./storage/videos/${userEmailFromToken}_${otherUser.email}`;
-    //     const filePath = temp;
-    // }
+    @Post('downloadVideo')
+    @ApiOperation({ summary: 'download certain video' })
+    @ApiBody({
+        type: DownloadFileDto,
+        description: 'The email of the other user',
+    })
+    async downloadVideo(
+        @Body() data: DownloadFileDto,
+        @Res() res,
+        @Req() req
+    ){
+        try{
+            const fileExists = fs.existsSync(data.path);
+            if (!fileExists) {
+                throw new HttpException('File not found', HttpStatus.NOT_FOUND);
+              }
+            res.download(data.path);
+        }
+        catch(error){
+            throw new HttpException(error.message || 'Not Found', HttpStatus.NOT_FOUND);
+        }
+    }
 }
