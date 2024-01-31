@@ -12,6 +12,7 @@ import { PrismaService } from 'src/helpers/database/prisma.service';
 import { FilesService } from './files.service';
 import { SavedFile as SavedFileModel } from '@prisma/client';
 import { GetMessagesFromChatDto } from './dto/get-messages-from-chat.dto';
+import { DownloadFileDto } from './dto/download-file.dto';
 
 // Added guard for Api key check
 @UseGuards(ApiKeyAuthGruard)
@@ -25,6 +26,7 @@ export class FilesController {
     constructor(private readonly filesService: FilesService) {}
 
     @Post('upload')
+    @ApiOperation({ summary: 'upload the video to server' })
     @ApiResponse({ status: 201, description: 'File is sent successfully'})
     @ApiResponse({ status: 400, description: 'Bad Request'})
     @ApiResponse({ status: 401, description: 'Failed to find the key between two users' })
@@ -74,6 +76,7 @@ export class FilesController {
         }
     }
     @Get('deliveredVideos')
+    @ApiOperation({ summary: 'check if new messages are sent' })
     @ApiResponse({ status: 200, description: 'savedFiles information is sent successfully'})
     @ApiResponse({ status: 400, description: 'Bad Request'})
     @ApiResponse({ status: 304, description: 'No new videos found' })
@@ -88,6 +91,7 @@ export class FilesController {
                 res.status(304).send();
                 return;
             }
+        res.status(200).send();
         return savedFiles;
         }
         catch(error){
@@ -96,11 +100,12 @@ export class FilesController {
     }
 
     @Post('GetMessagesFromChat')
+    @ApiOperation({ summary: 'Get the messages of a certain chat' })
     @ApiResponse({ status: 201, description: 'Chat is loaded successfully'})
     @ApiResponse({ status: 400, description: 'Bad Request'})
     @ApiBody({
         type: GetMessagesFromChatDto,
-        description: 'The email of the sender',
+        description: 'The email of the other user',
     })
     async GetMessagesFromChat(
         @Body() sender: GetMessagesFromChatDto,
@@ -115,4 +120,21 @@ export class FilesController {
             throw new HttpException(error.message || 'unauthorized', HttpStatus.UNAUTHORIZED);
         }
     }
+    // @Post('downloadVideo')
+    // @ApiOperation({ summary: 'download certain video' })
+    // @ApiBody({
+    //     type: GetMessagesFromChatDto,
+    //     description: 'The email of the other user',
+    // })
+    // async downloadVideo(
+    //     @Body() otherUser: GetMessagesFromChatDto,
+    //     @Res() resizeBy,
+    //     @Req() req
+    // ){
+    //     const userEmailFromToken = req['userEmail'];
+    //     const temp = otherUser.email > userEmailFromToken
+    //                 ? `./storage/videos/${otherUser.email}_${userEmailFromToken}`
+    //                 : `./storage/videos/${userEmailFromToken}_${otherUser.email}`;
+    //     const filePath = temp;
+    // }
 }
