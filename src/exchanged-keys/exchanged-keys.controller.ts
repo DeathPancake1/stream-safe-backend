@@ -49,7 +49,7 @@ export class ExchangedKeysController {
             res.status(304).send();
             return;
         }
-        return keys;
+        res.status(200).json(keys);
     }
 
     @Post('checkConversationKey')
