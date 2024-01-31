@@ -97,8 +97,14 @@ export class FilesService {
     async getMessages(receiverEmail: string,senderEmail:string):Promise<SavedFile[]>{
         const savedFiles = await this.prisma.savedFile.findMany({
             where:{
+                OR:[{
                 receiverEmail: receiverEmail,
                 senderEmail:senderEmail
+                },
+                {
+                receiverEmail: senderEmail,
+                senderEmail:receiverEmail
+                }]
             }
         })
         return savedFiles

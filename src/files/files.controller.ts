@@ -96,7 +96,7 @@ export class FilesController {
     }
 
     @Post('GetMessagesFromChat')
-    @ApiResponse({ status: 200, description: 'Chat is loaded successfully'})
+    @ApiResponse({ status: 201, description: 'Chat is loaded successfully'})
     @ApiResponse({ status: 400, description: 'Bad Request'})
     @ApiBody({
         type: GetMessagesFromChatDto,
@@ -104,8 +104,7 @@ export class FilesController {
     })
     async GetMessagesFromChat(
         @Body() sender: GetMessagesFromChatDto,
-        @Req() req,
-        @Res() res
+        @Req() req
     ):Promise<SavedFileModel[]>{
         const userEmailFromToken = req['userEmail'];
         try{
