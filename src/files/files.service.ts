@@ -51,6 +51,17 @@ export class FilesService {
                     name: file.originalname,
                     path: file.path,
                     size: file.size,
+                    delivered:false,
+                    sender:{
+                        connect:{
+                            email: videoInfoTemp.senderEmail
+                        }
+                    },
+                    receiver:{
+                        connect:{
+                            email: videoInfoTemp.receiverEmail
+                        }
+                    }
                 },
             });
 
@@ -62,5 +73,34 @@ export class FilesService {
                 throw new HttpException('Internal Server Error', HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
+    }
+    async makeDeliveredTrue(receiverEmail: string):Promise<SavedFile[]>{
+        const savedFiles = await this.prisma.savedFile.findMany({
+            where:{
+                receiverEmail: receiverEmail,
+                delivered:false
+            }
+        })
+        if(savedFiles){
+            await this.prisma.exchangedKey.updateMany({
+                where:{
+                    receiverEmail: receiverEmail,
+                    delivered:false
+                },
+                data:{
+                    delivered:true
+                }
+            })
+        }
+        return savedFiles
+    }
+    async getMessages(receiverEmail: string,senderEmail:string):Promise<SavedFile[]>{
+        const savedFiles = await this.prisma.savedFile.findMany({
+            where:{
+                receiverEmail: receiverEmail,
+                senderEmail:senderEmail
+            }
+        })
+        return savedFiles
     }
 }

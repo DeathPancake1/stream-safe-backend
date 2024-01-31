@@ -1,4 +1,4 @@
-import { Body, Controller, HttpException, HttpStatus, Post, UnauthorizedException, UseGuards, Req, Get, UploadedFile, UploadedFiles } from '@nestjs/common';
+import { Body, Controller, HttpException, HttpStatus, Post, UnauthorizedException, UseGuards, Req, Get, UploadedFile, UploadedFiles, Res } from '@nestjs/common';
 import { UseInterceptors } from '@nestjs/common';
 import { ApiResponse, ApiOperation, ApiTags, ApiBody, ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
 import { JWTAuthGuard } from 'src/auth/guard/jwt-auth.guard';
@@ -10,6 +10,8 @@ import { UploadFileDto } from './dto/upload-file.dto';
 import * as fs from 'fs';
 import { PrismaService } from 'src/helpers/database/prisma.service';
 import { FilesService } from './files.service';
+import { SavedFile as SavedFileModel } from '@prisma/client';
+import { GetMessagesFromChatDto } from './dto/get-messages-from-chat.dto';
 
 // Added guard for Api key check
 @UseGuards(ApiKeyAuthGruard)
@@ -17,7 +19,7 @@ import { FilesService } from './files.service';
 // Adds swagger headers to the request
 @ApiBearerAuth('api-key')
 @ApiBearerAuth('JWT-auth')
-@ApiTags('files')
+@ApiTags('Files')
 @Controller('files')
 export class FilesController {
     constructor(private readonly filesService: FilesService) {}
@@ -68,7 +70,50 @@ export class FilesController {
             }
 
         } catch (error) {
-            throw new HttpException(error.message || 'Internal Server Error', HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new HttpException(error.message || 'unauthorized', HttpStatus.UNAUTHORIZED);
+        }
+    }
+    @Get('deliveredVideos')
+    @ApiResponse({ status: 200, description: 'savedFiles information is sent successfully'})
+    @ApiResponse({ status: 400, description: 'Bad Request'})
+    @ApiResponse({ status: 304, description: 'No new videos found' })
+    async deliveredVideos(
+        @Req() req,
+        @Res() res
+    ):Promise<SavedFileModel[]>{
+        const userEmailFromToken = req['userEmail'];
+        try{
+            const savedFiles = await this.filesService.makeDeliveredTrue(userEmailFromToken)
+            if (savedFiles.length === 0) {
+                res.status(304).send();
+                return;
+            }
+        return savedFiles;
+        }
+        catch(error){
+            throw new HttpException(error.message || 'unauthorized', HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    @Post('GetMessagesFromChat')
+    @ApiResponse({ status: 200, description: 'Chat is loaded successfully'})
+    @ApiResponse({ status: 400, description: 'Bad Request'})
+    @ApiBody({
+        type: GetMessagesFromChatDto,
+        description: 'The email of the sender',
+    })
+    async GetMessagesFromChat(
+        @Body() sender: GetMessagesFromChatDto,
+        @Req() req,
+        @Res() res
+    ):Promise<SavedFileModel[]>{
+        const userEmailFromToken = req['userEmail'];
+        try{
+        const savedFiles = await this.filesService.getMessages(userEmailFromToken, sender.email)
+        return savedFiles;
+        }
+        catch(error){
+            throw new HttpException(error.message || 'unauthorized', HttpStatus.UNAUTHORIZED);
         }
     }
 }
