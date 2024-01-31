@@ -7,6 +7,7 @@ import { LoginUserDto } from './dto/login-user.dto';
 import { FindUserDto } from './dto/find-user.dto';
 import { JWTAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { ApiKeyAuthGruard } from 'src/auth/guard/apikey-auth.guard';
+import { SearchUserDto } from './dto/search-user.dto';
 
 // Added guard for Api key check
 @UseGuards(ApiKeyAuthGruard)
@@ -37,11 +38,11 @@ export class UserController {
     @ApiResponse({ status: 201, description: 'The user is found.'})
     @ApiResponse({ status: 401, description: 'Forbidden.' })
     @ApiBody({
-        type: FindUserDto,
+        type: SearchUserDto,
         description: 'Json structure for user object',
     })
     async searchUser(
-        @Body() userData: FindUserDto,
+        @Body() userData: SearchUserDto,
         @Req() req:any,
     ): Promise<UserModel[]> {
         const userEmailFromToken = req['userEmail'];
