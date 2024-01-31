@@ -91,8 +91,7 @@ export class FilesController {
                 res.status(304).send();
                 return;
             }
-        res.status(200).send();
-        return savedFiles;
+            res.status(200).json(savedFiles);
         }
         catch(error){
             throw new HttpException(error.message || 'unauthorized', HttpStatus.UNAUTHORIZED);
