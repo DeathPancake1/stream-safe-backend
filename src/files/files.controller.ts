@@ -1,4 +1,4 @@
-import { Body, Controller, HttpException, HttpStatus, Post, UnauthorizedException, UseGuards, Req, Get, UploadedFile, UploadedFiles, Res } from '@nestjs/common';
+import { Body, Controller, HttpException, HttpStatus, Post, UnauthorizedException, UseGuards, Req, Get, UploadedFile, UploadedFiles, Res, StreamableFile } from '@nestjs/common';
 import { UseInterceptors } from '@nestjs/common';
 import { ApiResponse, ApiOperation, ApiTags, ApiBody, ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
 import { JWTAuthGuard } from 'src/auth/guard/jwt-auth.guard';
@@ -119,21 +119,33 @@ export class FilesController {
             throw new HttpException(error.message || 'unauthorized', HttpStatus.UNAUTHORIZED);
         }
     }
-    // @Post('downloadVideo')
-    // @ApiOperation({ summary: 'download certain video' })
-    // @ApiBody({
-    //     type: GetMessagesFromChatDto,
-    //     description: 'The email of the other user',
-    // })
-    // async downloadVideo(
-    //     @Body() otherUser: GetMessagesFromChatDto,
-    //     @Res() resizeBy,
-    //     @Req() req
-    // ){
-    //     const userEmailFromToken = req['userEmail'];
-    //     const temp = otherUser.email > userEmailFromToken
-    //                 ? `./storage/videos/${otherUser.email}_${userEmailFromToken}`
-    //                 : `./storage/videos/${userEmailFromToken}_${otherUser.email}`;
-    //     const filePath = temp;
-    // }
+    @Post('downloadVideo')
+    @ApiOperation({ summary: 'download certain video' })
+    @ApiBody({
+        type: DownloadFileDto,
+        description: 'The email of the other user',
+    })
+    async downloadVideo(
+        @Body() data: DownloadFileDto,
+        @Res({ passthrough: true }) res: any
+    ):Promise<StreamableFile> {
+        try{
+            const fileExists = fs.existsSync(data.path);
+            if (!fileExists) {
+                throw new HttpException('File not found', HttpStatus.NOT_FOUND);
+              }
+            const partsArray = data.path.split("\\");
+            // const name = partsArray[partsArray.length-1].split(".")[0]
+            const name = partsArray[partsArray.length-1]
+            const file = fs.createReadStream(data.path)
+            res.set({
+                'Content-Type': 'application/octet-stream',
+                'Content-Disposition': `attachment; filename="${name}"`,
+              });
+            return new StreamableFile(file);
+        }
+        catch(error){
+            throw new HttpException(error.message || 'Not Found', HttpStatus.NOT_FOUND);
+        }
+    }
 }
