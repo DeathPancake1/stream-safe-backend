@@ -81,8 +81,8 @@ export class FilesService {
                 delivered:false
             }
         })
-        if(savedFiles){
-            await this.prisma.exchangedKey.updateMany({
+        if(savedFiles.length){
+            await this.prisma.savedFile.updateMany({
                 where:{
                     receiverEmail: receiverEmail,
                     delivered:false
