@@ -38,18 +38,12 @@ export class ExchangedKeysController {
     @Get('/')
     @ApiOperation({ summary: 'The receiver received the symmetric key' })
     @ApiResponse({ status: 200, description: 'Seen'})
-    @ApiResponse({ status: 304, description: 'no new keys found for this user' })
     async receiverDelivered(
         @Req() req:any,
-        @Res() res: any
     ): Promise<ExchangedKeysModel[]> {
         const userEmailFromToken = req['userEmail'];
         const keys = await this.exchangedKeysService.receiverDelivered(userEmailFromToken);
-        if (keys.length === 0) {
-            res.status(304).send();
-            return;
-        }
-        res.status(200).json(keys);
+        return keys;
     }
 
     @Post('checkConversationKey')

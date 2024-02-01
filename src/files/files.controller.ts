@@ -82,16 +82,11 @@ export class FilesController {
     @ApiResponse({ status: 304, description: 'No new videos found' })
     async deliveredVideos(
         @Req() req,
-        @Res() res
     ):Promise<SavedFileModel[]>{
         const userEmailFromToken = req['userEmail'];
         try{
             const savedFiles = await this.filesService.makeDeliveredTrue(userEmailFromToken)
-            if (savedFiles.length === 0) {
-                res.status(304).send();
-                return;
-            }
-            res.status(200).json(savedFiles);
+            return savedFiles;
         }
         catch(error){
             throw new HttpException(error.message || 'unauthorized', HttpStatus.UNAUTHORIZED);
