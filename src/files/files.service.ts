@@ -13,9 +13,9 @@ export class FilesService {
                 throw new HttpException('Bad Request - Missing required parameters', HttpStatus.BAD_REQUEST);
             }
 
-            const videoInfoTemp = JSON.parse(JSON.stringify(videoInfo));
+            const videoInfoJSON = JSON.parse(JSON.stringify(videoInfo));
 
-            if(emailFromToken !== videoInfoTemp.senderEmail){
+            if(emailFromToken !== videoInfoJSON.senderEmail){
                 throw new HttpException('Unauthorized upload', HttpStatus.UNAUTHORIZED);
             }
             const conv = await this.prisma.exchangedKey.findFirst({
@@ -23,14 +23,14 @@ export class FilesService {
                     OR: [
                         {
                             AND: [
-                                { senderEmail: videoInfoTemp.senderEmail },
-                                { receiverEmail: videoInfoTemp.receiverEmail },
+                                { senderEmail: videoInfoJSON.senderEmail },
+                                { receiverEmail: videoInfoJSON.receiverEmail },
                             ],
                         },
                         {
                             AND: [
-                                { senderEmail: videoInfoTemp.receiverEmail },
-                                { receiverEmail: videoInfoTemp.senderEmail },
+                                { senderEmail: videoInfoJSON.receiverEmail },
+                                { receiverEmail: videoInfoJSON.senderEmail },
                             ],
                         },
                     ],
@@ -54,12 +54,12 @@ export class FilesService {
                     delivered:false,
                     sender:{
                         connect:{
-                            email: videoInfoTemp.senderEmail
+                            email: videoInfoJSON.senderEmail
                         }
                     },
                     receiver:{
                         connect:{
-                            email: videoInfoTemp.receiverEmail
+                            email: videoInfoJSON.receiverEmail
                         }
                     }
                 },

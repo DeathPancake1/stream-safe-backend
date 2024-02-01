@@ -38,15 +38,15 @@ export class FilesController {
     @UseInterceptors(FileInterceptor('file', {
         storage: diskStorage({
             destination: (req, file, cb) => {
-                const temp = req.body.senderEmail > req.body.receiverEmail
+                const path = req.body.senderEmail > req.body.receiverEmail
                     ? `./storage/videos/${req.body.senderEmail}_${req.body.receiverEmail}`
                     : `./storage/videos/${req.body.receiverEmail}_${req.body.senderEmail}`;
 
-                if (!fs.existsSync(temp)) {
+                if (!fs.existsSync(path)) {
                     // Create the directory
-                    fs.mkdirSync(temp);
+                    fs.mkdirSync(path);
                 }
-                return cb(null, temp);
+                return cb(null, path);
             },
             filename: (req, file, cb) => {
                 const randomName = Array(32).fill(null).map(() => (Math.round(Math.random() * 16)).toString(16)).join('');
@@ -75,6 +75,8 @@ export class FilesController {
             throw new HttpException(error.message || 'unauthorized', HttpStatus.UNAUTHORIZED);
         }
     }
+
+
     @Get('deliveredVideos')
     @ApiOperation({ summary: 'check if new messages are sent' })
     @ApiResponse({ status: 200, description: 'savedFiles information is sent successfully'})
@@ -92,6 +94,8 @@ export class FilesController {
             throw new HttpException(error.message || 'unauthorized', HttpStatus.UNAUTHORIZED);
         }
     }
+
+
 
     @Post('GetMessagesFromChat')
     @ApiOperation({ summary: 'Get the messages of a certain chat' })
@@ -114,6 +118,9 @@ export class FilesController {
             throw new HttpException(error.message || 'unauthorized', HttpStatus.UNAUTHORIZED);
         }
     }
+
+
+    
     @Post('downloadVideo')
     @ApiOperation({ summary: 'download certain video' })
     @ApiBody({
