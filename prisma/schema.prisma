@@ -115,13 +115,11 @@ model SavedFile{
   receiverEmail  String
   exchangedKey  ExchangedKey @relation(fields:[idOfEncryptedKey],references: [id])
   idOfEncryptedKey Int
-  media Boolean
-  contentOfessage String? 
-  name  String?
-  type String?
-  IV String?
-  path String? @unique
-  size  Int?
+  name  String
+  type String
+  IV String
+  path String @unique
+  size  Int
   sentDate DateTime @default(now())
   delivered Boolean
 }
