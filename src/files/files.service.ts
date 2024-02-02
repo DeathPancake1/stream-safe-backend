@@ -52,6 +52,9 @@ export class FilesService {
                     name: file.originalname,
                     path: file.path,
                     size: file.size,
+                    type: videoInfoTemp.type,
+                    media: true,
+                    IV: videoInfoTemp.IV,
                     delivered:false,
                     sender:{
                         connect:{
