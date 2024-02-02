@@ -139,7 +139,7 @@ export class FilesController {
             const name = partsArray[partsArray.length-1]
             const file = fs.createReadStream(data.path)
             res.set({
-                'Content-Type': 'application/octet-stream',
+                'Content-Type': 'text/plain',
                 'Content-Disposition': `attachment; filename="${name}"`,
               });
             return new StreamableFile(file);
