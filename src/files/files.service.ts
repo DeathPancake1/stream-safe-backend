@@ -2,6 +2,7 @@ import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { UploadFileDto } from './dto/upload-file.dto';
 import { PrismaService } from 'src/helpers/database/prisma.service';
 import { SavedFile, ExchangedKey } from '@prisma/client';
+import * as fs from 'fs';
 
 @Injectable()
 export class FilesService {
@@ -13,9 +14,9 @@ export class FilesService {
                 throw new HttpException('Bad Request - Missing required parameters', HttpStatus.BAD_REQUEST);
             }
 
-            const videoInfoJSON = JSON.parse(JSON.stringify(videoInfo));
+            const videoInfoTemp = JSON.parse(JSON.stringify(videoInfo));
 
-            if(emailFromToken !== videoInfoJSON.senderEmail){
+            if(emailFromToken !== videoInfoTemp.senderEmail){
                 throw new HttpException('Unauthorized upload', HttpStatus.UNAUTHORIZED);
             }
             const conv = await this.prisma.exchangedKey.findFirst({
@@ -23,14 +24,14 @@ export class FilesService {
                     OR: [
                         {
                             AND: [
-                                { senderEmail: videoInfoJSON.senderEmail },
-                                { receiverEmail: videoInfoJSON.receiverEmail },
+                                { senderEmail: videoInfoTemp.senderEmail },
+                                { receiverEmail: videoInfoTemp.receiverEmail },
                             ],
                         },
                         {
                             AND: [
-                                { senderEmail: videoInfoJSON.receiverEmail },
-                                { receiverEmail: videoInfoJSON.senderEmail },
+                                { senderEmail: videoInfoTemp.receiverEmail },
+                                { receiverEmail: videoInfoTemp.senderEmail },
                             ],
                         },
                     ],
@@ -54,12 +55,12 @@ export class FilesService {
                     delivered:false,
                     sender:{
                         connect:{
-                            email: videoInfoJSON.senderEmail
+                            email: videoInfoTemp.senderEmail
                         }
                     },
                     receiver:{
                         connect:{
-                            email: videoInfoJSON.receiverEmail
+                            email: videoInfoTemp.receiverEmail
                         }
                     }
                 },
@@ -108,5 +109,15 @@ export class FilesService {
             }
         })
         return savedFiles
+    }
+    async downloadVideo(name:string,path:string):Promise<string>{
+        try {
+            // Read the content of the file synchronously
+            const fileContent = fs.readFileSync(path, 'utf-8');
+            return fileContent;
+          } catch (error) {
+            throw new Error(`Error reading file: ${error.message}`);
+          }
+        return
     }
 }
