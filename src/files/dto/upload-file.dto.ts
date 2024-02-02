@@ -25,13 +25,13 @@ export class UploadFileDto{
     file: Express.Multer.File;
     @ApiProperty({
         example: 'fkjgfdbk;dfbjfdgbWWDSGA',
-        description: 'IV of the encryption',
+        description: 'iv of the encryption',
     })
     @IsString()
-    readonly IV: string;
+    readonly iv: string;
     @ApiProperty({
-        example: 'mp4',
-        description: 'IV of the encryption',
+        example: 'video/mp4',
+        description: 'type of the file',
     })
     @IsString()
     readonly type: string;

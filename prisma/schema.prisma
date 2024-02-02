@@ -117,7 +117,7 @@ model SavedFile{
   idOfEncryptedKey Int
   name  String
   type String
-  IV String
+  iv String
   path String @unique
   size  Int
   sentDate DateTime @default(now())
