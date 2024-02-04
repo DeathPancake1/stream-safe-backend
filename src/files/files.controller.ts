@@ -114,6 +114,7 @@ export class FilesController {
             throw new HttpException(error.message || 'unauthorized', HttpStatus.UNAUTHORIZED);
         }
     }
+
     @Post('downloadVideo')
     @ApiOperation({ summary: 'download certain video' })
     @ApiBody({
@@ -122,8 +123,7 @@ export class FilesController {
     })
     async downloadVideo(
         @Body() data: DownloadFileDto,
-        @Res({ passthrough: true }) res: any
-    ):Promise<StreamableFile> {
+    ):Promise<string> {
         try{
             const fileExists = fs.existsSync(data.path);
             if (!fileExists) {
@@ -131,13 +131,9 @@ export class FilesController {
               }
             const partsArray = data.path.split("\\");
             // const name = partsArray[partsArray.length-1].split(".")[0]
-            const name = partsArray[partsArray.length-1]
-            const file = fs.createReadStream(data.path)
-            res.set({
-                'Content-Type': 'text/plain',
-                'Content-Disposition': `attachment; filename="${name}"`,
-              });
-            return new StreamableFile(file);
+            // const name = partsArray[partsArray.length-1]
+            const fileContent = fs.readFileSync(data.path, 'base64')
+            return fileContent.toString();
         }
         catch(error){
             throw new HttpException(error.message || 'Not Found', HttpStatus.NOT_FOUND);
