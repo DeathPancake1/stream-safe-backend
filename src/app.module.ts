@@ -12,11 +12,14 @@ import { ExchangedKeysModule } from './exchanged-keys/exchanged-keys.module';
 import { FilesController } from './files/files.controller';
 import { FilesService } from './files/files.service';
 import { FilesModule } from './files/files.module';
+import { DownloadFileController } from './download-file/download-file.controller';
+import { DownloadFileService } from './download-file/download-file.service';
+import { DownloadFileModule } from './download-file/download-file.module';
 
 @Module({
-  imports: [ AuthModule, ConfigModule.forRoot(), UserModule, DeviceModule, ExchangedKeysModule, FilesModule ],
-  controllers: [ FilesController],
-  providers: [ JwtStrategy, UserService, PrismaService, FilesService],
+  imports: [ AuthModule, ConfigModule.forRoot(), UserModule, DeviceModule, ExchangedKeysModule, FilesModule, DownloadFileModule ],
+  controllers: [ FilesController, DownloadFileController],
+  providers: [ JwtStrategy, UserService, PrismaService, FilesService, DownloadFileService],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {

@@ -8,11 +8,9 @@ import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { UploadFileDto } from './dto/upload-file.dto';
 import * as fs from 'fs';
-import { PrismaService } from 'src/helpers/database/prisma.service';
 import { FilesService } from './files.service';
 import { SavedFile as SavedFileModel } from '@prisma/client';
 import { GetMessagesFromChatDto } from './dto/get-messages-from-chat.dto';
-import { DownloadFileDto } from './dto/download-file.dto';
 
 // Added guard for Api key check
 @UseGuards(ApiKeyAuthGruard)
@@ -115,28 +113,4 @@ export class FilesController {
         }
     }
 
-    @Post('downloadVideo')
-    @ApiOperation({ summary: 'download certain video' })
-    @ApiBody({
-        type: DownloadFileDto,
-        description: 'The email of the other user',
-    })
-    async downloadVideo(
-        @Body() data: DownloadFileDto,
-    ):Promise<string> {
-        try{
-            const fileExists = fs.existsSync(data.path);
-            if (!fileExists) {
-                throw new HttpException('File not found', HttpStatus.NOT_FOUND);
-              }
-            const partsArray = data.path.split("\\");
-            // const name = partsArray[partsArray.length-1].split(".")[0]
-            // const name = partsArray[partsArray.length-1]
-            const fileContent = fs.readFileSync(data.path, 'base64')
-            return fileContent.toString();
-        }
-        catch(error){
-            throw new HttpException(error.message || 'Not Found', HttpStatus.NOT_FOUND);
-        }
-    }
 }
