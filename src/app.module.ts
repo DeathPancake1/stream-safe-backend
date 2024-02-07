@@ -15,11 +15,14 @@ import { FilesModule } from './files/files.module';
 import { DownloadFileController } from './download-file/download-file.controller';
 import { DownloadFileService } from './download-file/download-file.service';
 import { DownloadFileModule } from './download-file/download-file.module';
+import { UploadFileController } from './upload-file/upload-file.controller';
+import { UploadFileService } from './upload-file/upload-file.service';
+import { UploadFileModule } from './upload-file/upload-file.module';
 
 @Module({
-  imports: [ AuthModule, ConfigModule.forRoot(), UserModule, DeviceModule, ExchangedKeysModule, FilesModule, DownloadFileModule ],
-  controllers: [ FilesController, DownloadFileController],
-  providers: [ JwtStrategy, UserService, PrismaService, FilesService, DownloadFileService],
+  imports: [ AuthModule, ConfigModule.forRoot(), UserModule, DeviceModule, ExchangedKeysModule, FilesModule, DownloadFileModule, UploadFileModule ],
+  controllers: [ FilesController, DownloadFileController, UploadFileController],
+  providers: [ JwtStrategy, UserService, PrismaService, FilesService, DownloadFileService, UploadFileService],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
