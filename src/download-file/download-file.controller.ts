@@ -23,6 +23,11 @@ import { DownloadFileDto } from './dto/download-file.dto';
 export class DownloadFileController {
     @Post('downloadVideo')
     @ApiOperation({ summary: 'download certain video' })
+    @ApiResponse({ status: 201, description: 'File is downloaded successfully'})
+    @ApiResponse({ status: 400, description: 'Bad Request'})
+    @ApiResponse({ status: 404, description: 'File not found to download' })
+    @ApiResponse({ status: 401, description: 'User isnot authorized to download the video,not a sender nor receiver in this channel' })
+
     @ApiBody({
         type: DownloadFileDto,
         description: 'The email of the other user',
