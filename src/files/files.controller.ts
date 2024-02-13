@@ -5,9 +5,10 @@ import { JWTAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { ApiKeyAuthGruard } from 'src/auth/guard/apikey-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
-import { extname } from 'path';
+import { extname, join } from 'path';
 import { UploadFileDto } from './dto/upload-file.dto';
 import * as fs from 'fs';
+import { Response } from 'express';
 import { PrismaService } from 'src/helpers/database/prisma.service';
 import { FilesService } from './files.service';
 import { SavedFile as SavedFileModel } from '@prisma/client';
@@ -38,10 +39,15 @@ export class FilesController {
     @UseInterceptors(FileInterceptor('file', {
         storage: diskStorage({
             destination: (req, file, cb) => {
-                const temp = req.body.senderEmail > req.body.receiverEmail
-                    ? `./storage/videos/${req.body.senderEmail}_${req.body.receiverEmail}`
-                    : `./storage/videos/${req.body.receiverEmail}_${req.body.senderEmail}`;
+                const parentDirectory = join('storage', 'videos');
 
+                // Ensure the parent directory exists
+                if (!fs.existsSync(parentDirectory)) {
+                    fs.mkdirSync(parentDirectory, { recursive: true });
+                }
+                const temp = req.body.senderEmail > req.body.receiverEmail
+                    ? join(parentDirectory, `${req.body.senderEmail}_${req.body.receiverEmail}`)
+                    : join(parentDirectory, `${req.body.receiverEmail}_${req.body.senderEmail}`)
                 if (!fs.existsSync(temp)) {
                     // Create the directory
                     fs.mkdirSync(temp);
@@ -123,17 +129,15 @@ export class FilesController {
     })
     async downloadVideo(
         @Body() data: DownloadFileDto,
-    ):Promise<string> {
+        @Res() res: Response,
+    ): Promise<any> {
         try{
             const fileExists = fs.existsSync(data.path);
             if (!fileExists) {
                 throw new HttpException('File not found', HttpStatus.NOT_FOUND);
-              }
-            const partsArray = data.path.split("\\");
-            // const name = partsArray[partsArray.length-1].split(".")[0]
-            // const name = partsArray[partsArray.length-1]
-            const fileContent = fs.readFileSync(data.path, 'base64')
-            return fileContent.toString();
+            }
+            const stream = fs.createReadStream(data.path);
+            stream.pipe(res);
         }
         catch(error){
             throw new HttpException(error.message || 'Not Found', HttpStatus.NOT_FOUND);

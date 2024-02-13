@@ -21,7 +21,7 @@ export class UploadFileDto{
     })
     @IsString()
     readonly name: string;
-    @ApiProperty({ type:'string', format:'binary' })
+    @ApiProperty({ type:'file', format:'binary' })
     file: Express.Multer.File;
     @ApiProperty({
         example: 'fkjgfdbk;dfbjfdgbWWDSGA',
