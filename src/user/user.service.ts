@@ -77,9 +77,6 @@ export class UserService {
                 
             }
         })
-        if (users.length==0) {
-            throw new UnauthorizedException('User not found');
-        }
         for(let i = 0; i < users.length;i++){
             // it doesnt output these properties
             delete users[i].password;

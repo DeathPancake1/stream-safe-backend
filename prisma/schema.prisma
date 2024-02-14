@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -27,6 +27,11 @@ model User {
   subscripedChannels  Channel[] @relation("Subscriptions")
   ownedChannels Channel[] @relation("OwnedChannels")
   invitedChannels Channel[] @relation("InvitedUsers")
+  exchangedKeysForSender ExchangedKey[] @relation("senderEmails")
+  exchangedKeysForReceiver ExchangedKey[] @relation("receiverEmails")
+  savedFilesForSender SavedFile[]  @relation("senderSavedFiles")
+  savedFilesForReceiver SavedFile[]  @relation("receiverSavedFiles")
+
 }
 
 model Photo {
@@ -92,18 +97,29 @@ model Tag {
 
 model ExchangedKey{
   id  Int @id @default(autoincrement())
+  sender User @relation("senderEmails",fields:[senderEmail],references: [email]) 
   senderEmail  String
+  receiver User @relation("receiverEmails",fields:[receiverEmail],references: [email]) 
   receiverEmail  String
-  seen  Boolean
+  delivered  Boolean
   encryptedKey String 
   files SavedFile[]
+  exchangedDate DateTime @default(now())
 }
 
 model SavedFile{
   id  Int @id @default(autoincrement())
-  name  String
-  path String
+  sender User @relation("senderSavedFiles",fields:[senderEmail],references: [email]) 
+  senderEmail  String
+  receiver User @relation("receiverSavedFiles",fields:[receiverEmail],references: [email]) 
+  receiverEmail  String
   exchangedKey  ExchangedKey @relation(fields:[idOfEncryptedKey],references: [id])
   idOfEncryptedKey Int
+  name  String
+  type String
+  iv String
+  path String @unique
   size  Int
+  sentDate DateTime @default(now())
+  delivered Boolean
 }

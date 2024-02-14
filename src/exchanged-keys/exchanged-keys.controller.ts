@@ -13,7 +13,7 @@ import { CheckExchangedDTO } from './dto/check-exchanged.dto';
 // Adds swagger headers to the request
 @ApiBearerAuth('api-key')
 @ApiBearerAuth('JWT-auth')
-@ApiTags('exchanged-keys')
+@ApiTags('Exchanged-Keys')
 @Controller('exchanged-keys')
 export class ExchangedKeysController {
     constructor(private readonly exchangedKeysService: ExchangedKeysService) {}
@@ -35,21 +35,14 @@ export class ExchangedKeysController {
         return this.exchangedKeysService.exchangeSymmetricKey(userEmailFromToken,data.email,data.key)
     }
 
-    @Get('receiverSeen')
+    @Get('/')
     @ApiOperation({ summary: 'The receiver received the symmetric key' })
     @ApiResponse({ status: 200, description: 'Seen'})
-    @ApiResponse({ status: 304, description: 'no new keys found for this user' })
-    async receiverSeen(
+    async receiverDelivered(
         @Req() req:any,
-        @Res() res: any
     ): Promise<ExchangedKeysModel[]> {
         const userEmailFromToken = req['userEmail'];
-        const keys = await this.exchangedKeysService.receiverSeen(userEmailFromToken);
-        if (keys.length === 0) {
-            res.status(304).send();
-            return;
-        }
-      
+        const keys = await this.exchangedKeysService.receiverDelivered(userEmailFromToken);
         return keys;
     }
 

@@ -25,32 +25,42 @@ export class ExchangedKeysService {
         }
         await this.prisma.exchangedKey.create({
             data: {
-                senderEmail: senderEmail,
-                receiverEmail: receiverEmail,
+                sender:{
+                    connect:{
+                        email: senderEmail
+                    }
+                },
+                receiver:{
+                    connect:{
+                        email: receiverEmail
+                    }
+                },
                 encryptedKey: key,
-                seen: false
+                delivered: false
             }
         })
         return true;
     }
-    async receiverSeen(
+    async receiverDelivered(
             userEmail: string
         ): Promise<ExchangedKey[]>{
         const keys = await this.prisma.exchangedKey.findMany({
             where:{
                 receiverEmail: userEmail,
-                seen:false
+                delivered:false
             }
         })
-        await this.prisma.exchangedKey.updateMany({
-            where:{
-                receiverEmail: userEmail,
-                seen:false
-            },
-            data:{
-                seen:true
-            }
-        })
+        if(keys.length){
+            await this.prisma.exchangedKey.updateMany({
+                where:{
+                    receiverEmail: userEmail,
+                    delivered:false
+                },
+                data:{
+                    delivered:true
+                }
+            })
+        }
         return keys
     }
 
