@@ -1,5 +1,5 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
-import { UploadFileDto } from './dto/upload-file.dto';
+import { UploadFileDto } from '../upload-file/dto/upload-file.dto';
 import { PrismaService } from 'src/helpers/database/prisma.service';
 import { SavedFile, ExchangedKey } from '@prisma/client';
 import * as fs from 'fs';

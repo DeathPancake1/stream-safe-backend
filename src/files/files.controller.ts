@@ -6,7 +6,7 @@ import { ApiKeyAuthGruard } from 'src/auth/guard/apikey-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
-import { UploadFileDto } from './dto/upload-file.dto';
+import { UploadFileDto } from '../upload-file/dto/upload-file.dto';
 import * as fs from 'fs';
 import { FilesService } from './files.service';
 import { SavedFile as SavedFileModel } from '@prisma/client';
@@ -22,57 +22,6 @@ import { GetMessagesFromChatDto } from './dto/get-messages-from-chat.dto';
 @Controller('files')
 export class FilesController {
     constructor(private readonly filesService: FilesService) {}
-
-    @Post('upload')
-    @ApiOperation({ summary: 'upload the video to server' })
-    @ApiResponse({ status: 201, description: 'File is sent successfully'})
-    @ApiResponse({ status: 400, description: 'Bad Request'})
-    @ApiResponse({ status: 401, description: 'Failed to find the key between two users' })
-    @ApiBody({
-        type: UploadFileDto,
-        description: 'The sender and receiver of the encrypted symmetric key and the name of the video',
-    })
-    @ApiConsumes('multipart/form-data')
-    @UseInterceptors(FileInterceptor('file', {
-        storage: diskStorage({
-            destination: (req, file, cb) => {
-                const temp = req.body.senderEmail > req.body.receiverEmail
-                    ? `./storage/videos/${req.body.senderEmail}_${req.body.receiverEmail}`
-                    : `./storage/videos/${req.body.receiverEmail}_${req.body.senderEmail}`;
-
-                if (!fs.existsSync(temp)) {
-                    // Create the directory
-                    fs.mkdirSync(temp);
-                }
-                return cb(null, temp);
-            },
-            filename: (req, file, cb) => {
-                const randomName = Array(32).fill(null).map(() => (Math.round(Math.random() * 16)).toString(16)).join('');
-                return cb(null, `${randomName}${extname(file.originalname)}`);
-            }
-        })
-    }))
-    async uploadFile(
-        @Body() videoInfo: UploadFileDto,
-        @UploadedFile() file: Express.Multer.File,
-        @Req() req: any
-    ) {
-        try {
-            if (!videoInfo || !file || !req) {
-                throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST);
-            }
-
-            const userEmailFromToken = req['userEmail'];
-            const result = await this.filesService.uploadFile(videoInfo, file, userEmailFromToken);
-
-            if (!result) {
-                throw new HttpException('Failed to find the key between two users', HttpStatus.UNAUTHORIZED);
-            }
-
-        } catch (error) {
-            throw new HttpException(error.message || 'unauthorized', HttpStatus.UNAUTHORIZED);
-        }
-    }
     @Get('deliveredVideos')
     @ApiOperation({ summary: 'check if new messages are sent' })
     @ApiResponse({ status: 200, description: 'savedFiles information is sent successfully'})
