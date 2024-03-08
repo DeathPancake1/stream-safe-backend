@@ -1,15 +1,29 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from 'src/helpers/database/prisma.service';
-import { ExchangedKey, User } from '@prisma/client'
+import {  User } from '@prisma/client'
 import { LoginUserDto } from './dto/login-user.dto';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from './dto/create-user.dto';
-import { FindUserDto } from './dto/find-user.dto';
+import * as nodemailer from 'nodemailer';
+import {randomInt} from "crypto";
+import {HTMLMaker} from "../helpers/email/email-template"
+import { receiveOTPDTO } from './dto/receive-otp.dto';
 
 @Injectable()
 export class UserService {
-    constructor(private prisma: PrismaService) {}
-
+    private transporter
+    constructor(private prisma: PrismaService) {
+        this.transporter = nodemailer.createTransport({
+            host: "smtp.gmail.com",
+            port: 465,
+            secure: true,
+            auth: {
+              user: 'stream6safe9@gmail.com',
+              pass: 'jnbu fojf opne fepo',
+            },
+          });
+    }
+    
     async user(
         userWhereUniqueInput: LoginUserDto
     ): Promise<User | null> {
@@ -107,6 +121,50 @@ export class UserService {
         });
         const email = newUser.email
         return email
+    }
+    async sendVerMail(email:string){
+        const code = randomInt(999999)
+        const codeStr = code.toString();
+        const subject = 'Email verification'
+        const text = HTMLMaker(codeStr)
+        const mailOptions = {
+            from: 'stream6safe9@gmail.com',
+            to: email,
+            subject,
+            html:text
+          };
+        await this.transporter.sendMail(mailOptions);
+        await this.prisma.oTP.create({
+            data:{
+                email: email,
+                otp: codeStr
+            }
+        })
+    }
+    async receiveOTP(data: receiveOTPDTO){
+        const oTPInfo = await this.prisma.oTP.findUnique({
+            where:{
+                email: data.email
+            }
+        })
+        if(oTPInfo == null){
+            throw new HttpException("couldn't find OTP" , HttpStatus.NOT_FOUND);
+        }
+        //check the time is 2 minutes
+        var diff =(Date.now() - oTPInfo.CreatedAt.getTime()) / 1000;
+        diff /= 60;
+        if(data.otp != oTPInfo.otp ||  diff > 2){
+            return false
+        }
+        else if(diff<2){
+            // Not needed anymore
+            await this.prisma.oTP.delete({
+                where:{
+                    email: data.email
+                }
+            })
+            return true
+        }
     }
     // async updateUser(params: {
     //     where: Prisma.UserWhereUniqueInput;

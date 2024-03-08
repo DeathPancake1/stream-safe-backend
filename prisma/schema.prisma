@@ -123,3 +123,10 @@ model SavedFile{
   sentDate DateTime @default(now())
   delivered Boolean
 }
+
+model OTP{
+  id  Int @id @default(autoincrement())
+  email String @unique
+  otp String
+  CreatedAt DateTime @default(now())
+}
