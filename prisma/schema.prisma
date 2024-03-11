@@ -42,7 +42,6 @@ model Photo {
   // Relationships
   owner     User?
   channel   Channel?
-  video     Video?
 }
 
 model Channel {
@@ -61,23 +60,8 @@ model Channel {
   ownerId Int
   thumbnail Photo @relation(fields: [thumbnailId], references: [id])
   thumbnailId Int @unique
-  videos  Video[]
   subscribers   User[] @relation("Subscriptions")
   invitedUsers  User[] @relation("InvitedUsers")
-}
-
-model Video {
-  id        Int     @id @default(autoincrement())
-  title     String
-  description String
-  tag      String
-  created   DateTime @default(now())
-
-  // Relationships
-  thumbnail Photo @relation(fields: [thumbnailId], references: [id])
-  thumbnailId Int @unique
-  channel     Channel @relation(fields: [channelId], references: [id])
-  channelId   Int
 }
 
 model Subscription {
@@ -88,11 +72,6 @@ model Subscription {
 
   // Relationships
   subscripedChannels  Channel[]
-}
-
-model Tag {
-  id        Int @id @default(autoincrement())
-  title     String
 }
 
 model ExchangedKey{
