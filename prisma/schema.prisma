@@ -41,38 +41,38 @@ model Photo {
 
   // Relationships
   owner     User?
-  channel   Channel?
+  // channel   Channel?
 }
 
 model Channel {
-  id        Int     @id @default(autoincrement())
+  id        String     @id @default(uuid())
   title     String
   description String
-  tag      String
   private   Boolean
   created DateTime  @default(now())
   lastActive  DateTime @updatedAt
+  totalMembers  Int
 
   // Relationshitps
-  subscriptionPlan  Subscription @relation(fields: [subscriptionId], references: [id])
-  subscriptionId    Int
+  // subscriptionPlan  Subscription @relation(fields: [subscriptionId], references: [id])
+  // subscriptionId    Int
   owner User @relation("OwnedChannels", fields: [ownerId], references: [id])
   ownerId Int
-  thumbnail Photo @relation(fields: [thumbnailId], references: [id])
-  thumbnailId Int @unique
+  // thumbnail Photo @relation(fields: [thumbnailId], references: [id])
+  // thumbnailId Int @unique
   subscribers   User[] @relation("Subscriptions")
   invitedUsers  User[] @relation("InvitedUsers")
 }
 
-model Subscription {
-  id        Int @id @default(autoincrement())
-  title     String
-  description String
-  price     Float
+// model Subscription {
+//   id        Int @id @default(autoincrement())
+//   title     String
+//   description String
+//   price     Float
 
-  // Relationships
-  subscripedChannels  Channel[]
-}
+//   // Relationships
+//   subscripedChannels  Channel[]
+// }
 
 model ExchangedKey{
   id  Int @id @default(autoincrement())

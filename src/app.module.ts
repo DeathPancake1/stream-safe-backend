@@ -12,11 +12,14 @@ import { ExchangedKeysModule } from './exchanged-keys/exchanged-keys.module';
 import { FilesController } from './files/files.controller';
 import { FilesService } from './files/files.service';
 import { FilesModule } from './files/files.module';
+import { ChannelController } from './channel/channel.controller';
+import { ChannelService } from './channel/channel.service';
+import { ChannelModule } from './channel/channel.module';
 
 @Module({
-  imports: [ AuthModule, ConfigModule.forRoot(), UserModule, DeviceModule, ExchangedKeysModule, FilesModule ],
-  controllers: [ FilesController],
-  providers: [ JwtStrategy, UserService, PrismaService, FilesService],
+  imports: [ AuthModule, ConfigModule.forRoot(), UserModule, DeviceModule, ExchangedKeysModule, FilesModule, ChannelModule ],
+  controllers: [ FilesController, ChannelController],
+  providers: [ JwtStrategy, UserService, PrismaService, FilesService, ChannelService],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
