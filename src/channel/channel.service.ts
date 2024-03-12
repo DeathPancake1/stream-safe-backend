@@ -11,7 +11,7 @@ export class ChannelService {
     async createChannel (
         newChannel: CreateChannelDTO,
         ownerEmail: string
-    ): Promise<Channel | null>{
+    ): Promise<String | null>{
         const userOwner = await this.prisma.user.findUnique({
             where: {
                 email: ownerEmail
@@ -21,7 +21,7 @@ export class ChannelService {
             throw new UnauthorizedException('User email not found');
         }
 
-        const createdChannel = this.prisma.channel.create({
+        const createdChannel = await this.prisma.channel.create({
             data: {
                 ...newChannel,
                 owner: {
@@ -32,7 +32,7 @@ export class ChannelService {
                 totalMembers: 0
             }
         })
-        return createdChannel
+        return createdChannel.id
     }
 
     async addMembers (
@@ -73,7 +73,8 @@ export class ChannelService {
             data: {
                 subscribers:{
                     connect: newMembers.map((member) => ({ id: member.id })),
-                }
+                },
+                totalMembers: checkChannel.totalMembers + newMembers.length
             }
         })
 

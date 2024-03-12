@@ -29,7 +29,7 @@ export class ChannelController {
     async createChannel(
         @Body() channelData: CreateChannelDTO,
         @Req() req:any,
-    ): Promise<Channel> {
+    ): Promise<String> {
         const userEmailFromToken = req['userEmail'];
         return this.channelService.createChannel(channelData, userEmailFromToken)
     }
