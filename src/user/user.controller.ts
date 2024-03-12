@@ -1,4 +1,4 @@
-import { Body, Controller, HttpException, HttpStatus, Post, UnauthorizedException, UseGuards,Req, Get } from '@nestjs/common';
+import { Body, Controller, HttpException, HttpStatus, Post, UnauthorizedException, UseGuards,Req, Get, Res } from '@nestjs/common';
 import { UserService } from './user.service';
 import { ExchangedKey as ExchangedKeysModel, User as UserModel } from '@prisma/client';
 import { ApiResponse, ApiOperation, ApiTags, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
@@ -9,6 +9,8 @@ import { JWTAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { ApiKeyAuthGruard } from 'src/auth/guard/apikey-auth.guard';
 import { SearchUserDto } from './dto/search-user.dto';
 import { receiveOTPDTO } from './dto/receive-otp.dto';
+import { response } from 'express';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 // Adds swagger headers to the request
 @ApiBearerAuth('api-key')
@@ -67,27 +69,24 @@ export class UserController {
     })
     async sendVerMail(
         @Body() userData: SearchUserDto,
+        @Res() res:any
     ){
         try{
-            this.userService.findByEmail(userData.email)
+            await this.userService.sendVerMail(userData.email)
         }
         catch(error){
-            throw new HttpException(error.message , HttpStatus.FORBIDDEN);
+            res.status(HttpStatus.UNAUTHORIZED).json({ message: 'fail' });
+            return
         }
-        try{
-            this.userService.sendVerMail(userData.email)
-        }
-        catch(error){
-            throw new HttpException(error.message, HttpStatus.SERVICE_UNAVAILABLE);
-        }
+        res.status(HttpStatus.CREATED).json({ message: 'Success' });
     }
 
 
     @Post('receiveOTP')
     @UseGuards(ApiKeyAuthGruard)
     @ApiOperation({ summary: 'receieve the otp from the user and check if the otp is right and not expired' })
-    @ApiResponse({ status: 201, description: 'The user is found.'})
-    @ApiResponse({ status: 401, description: 'User not found.' })
+    @ApiResponse({ status: 200, description: 'The otp is right'})
+    @ApiResponse({ status: 401, description: 'otp not found or otp is wrong' })
     @ApiBody({
         // msh m7tagin new dto
         type: receiveOTPDTO,
@@ -95,12 +94,44 @@ export class UserController {
     })
     async receiveOTP(
         @Body() data: receiveOTPDTO,
+        @Res() res:any
     ){
         try{
-            return this.userService.receiveOTP(data)
+            const bool =  await this.userService.receiveOTP(data)
+            if(bool){
+                res.status(HttpStatus.OK).json({ message: 'success' });
+                return
+            }
+            else{
+                res.status(HttpStatus.UNAUTHORIZED).json({ message: 'fail' });
+                return
+            }
         }
         catch(error){
-            throw new HttpException(error.message , HttpStatus.FORBIDDEN);
+            res.status(HttpStatus.UNAUTHORIZED).json({ message: 'fail' });
+        }
+    }
+
+    @Post('changePassword')
+    @UseGuards(ApiKeyAuthGruard)
+    @ApiOperation({ summary: 'get the new password from the user and update his info' })
+    @ApiResponse({ status: 200, description: 'found the user and updated'})
+    @ApiResponse({ status: 401, description: 'couldnt update users password' })
+    @ApiBody({
+        type: ChangePasswordDto,
+        description: 'the email and the new password',
+    })
+    async changePassword(
+        @Body() data: ChangePasswordDto,
+        @Res() res:any
+    ){
+        try{
+            await this.userService.changePassword(data.email,data.password)
+            res.status(HttpStatus.OK).json({ message: 'success' });
+            return
+        }
+        catch(error){
+            res.status(HttpStatus.UNAUTHORIZED).json({ message: 'fail' });
         }
     }
 }

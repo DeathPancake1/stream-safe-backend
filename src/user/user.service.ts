@@ -56,7 +56,7 @@ export class UserService {
             }
         })
         if (!user) {
-            throw new UnauthorizedException('User not found');
+            throw new HttpException("USER NOT FOUND" , HttpStatus.FORBIDDEN);
         }
         delete user.password;
         delete user.deviceId;
@@ -123,8 +123,29 @@ export class UserService {
         return email
     }
     async sendVerMail(email:string){
+        try{
+            const found = await this.findByEmail(email)
+        }catch(error){
+            throw new HttpException(error.message , HttpStatus.FORBIDDEN);
+        }
+        const user = await this.prisma.oTP.findUnique({
+            where:{
+                email: email
+            }
+        })
+        if(user){
+            await this.prisma.oTP.delete({
+                where:{
+                    email: email
+                }
+            })
+        }
         const code = randomInt(999999)
-        const codeStr = code.toString();
+        var codeStr = code.toString();
+        while (codeStr.length<6){
+            codeStr = "0"+ codeStr
+        }
+
         const subject = 'Email verification'
         const text = HTMLMaker(codeStr)
         const mailOptions = {
@@ -158,13 +179,20 @@ export class UserService {
         }
         else if(diff<2){
             // Not needed anymore
-            await this.prisma.oTP.delete({
-                where:{
-                    email: data.email
-                }
-            })
             return true
         }
+    }
+    async changePassword(email: string, password: string){
+        const salt = await bcrypt.genSalt();
+        const newPassword = await bcrypt.hash(password, salt);
+        const updatedUser = await this.prisma.user.update({
+            data: {
+                password: newPassword
+            },
+            where: {
+                email: email
+            }
+        })
     }
     // async updateUser(params: {
     //     where: Prisma.UserWhereUniqueInput;
