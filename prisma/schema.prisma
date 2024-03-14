@@ -26,7 +26,6 @@ model User {
   photoId                  Int?           @unique
   subscripedChannels       Channel[]      @relation("Subscriptions")
   ownedChannels            Channel[]      @relation("OwnedChannels")
-  invitedChannels          Channel[]      @relation("InvitedUsers")
   exchangedKeysForSender   ExchangedKey[] @relation("senderEmails")
   exchangedKeysForReceiver ExchangedKey[] @relation("receiverEmails")
   savedFilesForSender      SavedFile[]    @relation("senderSavedFiles")
@@ -61,8 +60,8 @@ model Channel {
   // thumbnail Photo @relation(fields: [thumbnailId], references: [id])
   // thumbnailId Int @unique
   subscribers  User[]         @relation("Subscriptions")
-  invitedUsers User[]         @relation("InvitedUsers")
   channelKeys  ExchangedKey[] @relation("ChannelKeys")
+  channelVideos Video[]       @relation("ChannelVideos")
 }
 
 // model Subscription {
@@ -105,6 +104,18 @@ model SavedFile {
   size             Int
   sentDate         DateTime     @default(now())
   delivered        Boolean
+}
+
+model Video {
+  id               Int           @id @default(autoincrement())
+  name             String
+  type             String
+  iv               String
+  path             String       @unique
+  size             Int
+  sentDate         DateTime     @default(now())
+  channel          Channel      @relation("ChannelVideos", fields: [channelId], references: [id])
+  channelId        String
 }
 
 enum KeyType {
