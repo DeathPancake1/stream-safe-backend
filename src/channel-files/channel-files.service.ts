@@ -59,11 +59,12 @@ export class ChannelFilesService {
             where: {
                 AND: [
                     { id: channelId },
-                    { subscribers: {
-                        some:{
-                            email: emailFromToken
-                        }
-                    }}
+                    {
+                        OR: [
+                            { subscribers: { some: { email: emailFromToken } } },
+                            { owner: { email: emailFromToken } }
+                        ]
+                    }
                 ]
             }
         })
