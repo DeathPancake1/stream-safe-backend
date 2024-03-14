@@ -37,7 +37,9 @@ export class ChannelFilesService {
                     type: videoInfo.type,
                     iv: videoInfo.iv,
                     channel: {
-                        connect: channel
+                        connect: {
+                            id: channel.id
+                        }
                     }
                 },
             });
