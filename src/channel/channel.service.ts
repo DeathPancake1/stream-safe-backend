@@ -1,9 +1,9 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from 'src/helpers/database/prisma.service';
 import { CreateChannelDTO } from './dto/create-channel.dto';
-import { Channel } from '@prisma/client';
-import { AddMembersDTO } from './dto/add-members.dto';
+import { AddMemberDTO } from './dto/add-member.dto';
 import { GetMembersDTO, GetMembersReturnDTO } from './dto/get-members.dto';
+import { KeyType } from '@prisma/client';
 
 @Injectable()
 export class ChannelService {
@@ -36,10 +36,10 @@ export class ChannelService {
         return createdChannel.id
     }
 
-    async addMembers (
-        channelData: AddMembersDTO,
+    async addMember (
+        channelData: AddMemberDTO,
         ownerEmail: string
-    ): Promise<string[] | null>{
+    ): Promise<string | null>{
         const userOwner = await this.prisma.user.findUnique({
             where: {
                 email: ownerEmail
@@ -68,6 +68,42 @@ export class ChannelService {
               },
             },
         });
+
+        const existingSubscribers = await this.prisma.channel.findFirst({
+            where: {
+                AND: [
+                    { id: channelData.channelId },
+                    { subscribers: { some: { id: { in: newMembers.map(member => member.id) } } } }
+                ]
+            }
+        });
+    
+        if (existingSubscribers) {
+            throw new BadRequestException('One or more users are already subscribed to the channel');
+        }
+
+        await this.prisma.exchangedKey.create({
+            data: {
+                sender:{
+                    connect:{
+                        email: userOwner.email
+                    }
+                },
+                receiver:{
+                    connect:{
+                        email: newMembers[0].email
+                    }
+                },
+                channel: {
+                    connect: {
+                        id: channelData.channelId
+                    }
+                },
+                type: KeyType.CHANNEL,
+                encryptedKey: channelData.key,
+                delivered: false
+            }
+        })
 
         const updatedChannel = await this.prisma.channel.update({
             where: { id: checkChannel.id },

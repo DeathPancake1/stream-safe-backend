@@ -5,7 +5,7 @@ import { JWTAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { ChannelService } from './channel.service';
 import { CreateChannelDTO } from './dto/create-channel.dto';
 import { Channel } from '@prisma/client';
-import { AddMembersDTO } from './dto/add-members.dto';
+import { AddMemberDTO } from './dto/add-member.dto';
 import { GetMembersDTO, GetMembersReturnDTO } from './dto/get-members.dto';
 
 // Added guard for Api key check
@@ -36,20 +36,20 @@ export class ChannelController {
     }
 
 
-    @Post('addMembers')
-    @ApiOperation({ summary: 'Add members to a channel' })
-    @ApiResponse({ status: 201, description: 'Members are added.'})
+    @Post('addMember')
+    @ApiOperation({ summary: 'Add member to a channel' })
+    @ApiResponse({ status: 201, description: 'Member is added.'})
     @ApiResponse({ status: 401, description: 'Forbidden.' })
     @ApiBody({
-        type: AddMembersDTO,
-        description: 'Json structure for members to be added',
+        type: AddMemberDTO,
+        description: 'Json structure for member to be added',
     })
-    async addMemebers(
-        @Body() newMembers: AddMembersDTO,
+    async addMemeber(
+        @Body() newMembers: AddMemberDTO,
         @Req() req:any,
-    ): Promise<string[]> {
+    ): Promise<string> {
         const userEmailFromToken = req['userEmail'];
-        return this.channelService.addMembers(newMembers, userEmailFromToken)
+        return this.channelService.addMember(newMembers, userEmailFromToken)
     }
 
     @Post('getMembers')

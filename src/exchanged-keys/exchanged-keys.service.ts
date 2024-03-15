@@ -48,6 +48,9 @@ export class ExchangedKeysService {
             where:{
                 receiverEmail: userEmail,
                 delivered:false
+            },
+            include: {
+                channel: true
             }
         })
         if(keys.length){
