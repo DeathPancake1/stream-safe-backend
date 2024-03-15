@@ -6,6 +6,7 @@ import { ChannelService } from './channel.service';
 import { CreateChannelDTO } from './dto/create-channel.dto';
 import { Channel } from '@prisma/client';
 import { AddMembersDTO } from './dto/add-members.dto';
+import { GetMembersDTO, GetMembersReturnDTO } from './dto/get-members.dto';
 
 // Added guard for Api key check
 @UseGuards(ApiKeyAuthGruard)
@@ -49,5 +50,21 @@ export class ChannelController {
     ): Promise<string[]> {
         const userEmailFromToken = req['userEmail'];
         return this.channelService.addMembers(newMembers, userEmailFromToken)
+    }
+
+    @Post('getMembers')
+    @ApiOperation({ summary: 'Get channel members' })
+    @ApiResponse({ status: 201, description: 'Members returned.'})
+    @ApiResponse({ status: 401, description: 'Forbidden.' })
+    @ApiBody({
+        type: GetMembersDTO,
+        description: 'Json structure for channel',
+    })
+    async getMembers(
+        @Body() data: GetMembersDTO,
+        @Req() req:any,
+    ): Promise<GetMembersReturnDTO> {
+        const userEmailFromToken = req['userEmail'];
+        return this.channelService.getMembers(data, userEmailFromToken)
     }
 }
