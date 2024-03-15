@@ -11,83 +11,79 @@ datasource db {
 }
 
 model User {
-  id        Int     @id @default(autoincrement())
-  email     String  @unique
-  firstname String
-  lastname  String
-  password  String
-  created   DateTime @default(now())
-  deviceId  String?  @unique
-  deviceIdLastUpdate   DateTime?
-  publicKey String?
+  id                 Int       @id @default(autoincrement())
+  email              String    @unique
+  firstname          String
+  lastname           String
+  password           String
+  created            DateTime  @default(now())
+  deviceId           String?   @unique
+  deviceIdLastUpdate DateTime?
+  publicKey          String?
 
   // Relationships
-  photo Photo? @relation(fields: [photoId], references: [id])
-  photoId   Int? @unique
-  subscripedChannels  Channel[] @relation("Subscriptions")
-  ownedChannels Channel[] @relation("OwnedChannels")
-  invitedChannels Channel[] @relation("InvitedUsers")
-  exchangedKeysForSender ExchangedKey[] @relation("senderEmails")
+  photo                    Photo?         @relation(fields: [photoId], references: [id])
+  photoId                  Int?           @unique
+  subscripedChannels       Channel[]      @relation("Subscriptions")
+  ownedChannels            Channel[]      @relation("OwnedChannels")
+  exchangedKeysForSender   ExchangedKey[] @relation("senderEmails")
   exchangedKeysForReceiver ExchangedKey[] @relation("receiverEmails")
-  savedFilesForSender SavedFile[]  @relation("senderSavedFiles")
-  savedFilesForReceiver SavedFile[]  @relation("receiverSavedFiles")
+  savedFilesForSender      SavedFile[]    @relation("senderSavedFiles")
+  savedFilesForReceiver    SavedFile[]    @relation("receiverSavedFiles")
 
 }
 
 model Photo {
-  id        Int   @id @default(autoincrement())
-  url       String
-  created   DateTime @default(now())
+  id      Int      @id @default(autoincrement())
+  url     String
+  created DateTime @default(now())
 
   // Relationships
-  owner     User?
-  channel   Channel?
-  video     Video?
+  owner User?
+  // channel   Channel?
 }
 
 model Channel {
-  id        Int     @id @default(autoincrement())
-  title     String
-  description String
-  tag      String
-  private   Boolean
-  created DateTime  @default(now())
-  lastActive  DateTime @updatedAt
+  id           String   @id @default(uuid())
+  title        String
+  description  String
+  private      Boolean
+  created      DateTime @default(now())
+  lastActive   DateTime @updatedAt
+  totalMembers Int
 
   // Relationshitps
-  subscriptionPlan  Subscription @relation(fields: [subscriptionId], references: [id])
-  subscriptionId    Int
-  owner User @relation("OwnedChannels", fields: [ownerId], references: [id])
-  ownerId Int
-  thumbnail Photo @relation(fields: [thumbnailId], references: [id])
-  thumbnailId Int @unique
-  videos  Video[]
-  subscribers   User[] @relation("Subscriptions")
-  invitedUsers  User[] @relation("InvitedUsers")
+  // subscriptionPlan  Subscription @relation(fields: [subscriptionId], references: [id])
+  // subscriptionId    Int
+  owner        User           @relation("OwnedChannels", fields: [ownerId], references: [id])
+  ownerId      Int
+  // thumbnail Photo @relation(fields: [thumbnailId], references: [id])
+  // thumbnailId Int @unique
+  subscribers  User[]         @relation("Subscriptions")
+  channelKeys  ExchangedKey[] @relation("ChannelKeys")
+  channelVideos Video[]       @relation("ChannelVideos")
 }
+
+// model Subscription {
+//   id        Int @id @default(autoincrement())
+//   title     String
+//   description String
+//   price     Float
+
+//   // Relationships
+//   subscripedChannels  Channel[]
+// }
 
 model Video {
-  id        Int     @id @default(autoincrement())
-  title     String
-  description String
-  tag      String
-  created   DateTime @default(now())
-
-  // Relationships
-  thumbnail Photo @relation(fields: [thumbnailId], references: [id])
-  thumbnailId Int @unique
-  channel     Channel @relation(fields: [channelId], references: [id])
-  channelId   Int
-}
-
-model Subscription {
-  id        Int @id @default(autoincrement())
-  title     String
-  description String
-  price     Float
-
-  // Relationships
-  subscripedChannels  Channel[]
+  id               Int           @id @default(autoincrement())
+  name             String
+  type             String
+  iv               String
+  path             String       @unique
+  size             Int
+  sentDate         DateTime     @default(now())
+  channel          Channel      @relation("ChannelVideos", fields: [channelId], references: [id])
+  channelId        String
 }
 
 model Tag {
@@ -95,33 +91,36 @@ model Tag {
   title     String
 }
 
-model ExchangedKey{
-  id  Int @id @default(autoincrement())
-  sender User @relation("senderEmails",fields:[senderEmail],references: [email]) 
-  senderEmail  String
-  receiver User @relation("receiverEmails",fields:[receiverEmail],references: [email]) 
-  receiverEmail  String
-  delivered  Boolean
-  encryptedKey String 
-  files SavedFile[]
-  exchangedDate DateTime @default(now())
+model ExchangedKey {
+  id            Int         @id @default(autoincrement())
+  sender        User        @relation("senderEmails", fields: [senderEmail], references: [email])
+  senderEmail   String
+  receiver      User        @relation("receiverEmails", fields: [receiverEmail], references: [email])
+  receiverEmail String
+  delivered     Boolean
+  encryptedKey  String
+  files         SavedFile[]
+  exchangedDate DateTime    @default(now())
+  channel       Channel?    @relation("ChannelKeys", fields: [channelId], references: [id])
+  channelId     String?
+  type          KeyType     @default(USER)
 }
 
-model SavedFile{
-  id  Int @id @default(autoincrement())
-  sender User @relation("senderSavedFiles",fields:[senderEmail],references: [email]) 
-  senderEmail  String
-  receiver User @relation("receiverSavedFiles",fields:[receiverEmail],references: [email]) 
-  receiverEmail  String
-  exchangedKey  ExchangedKey @relation(fields:[idOfEncryptedKey],references: [id])
+model SavedFile {
+  id               Int          @id @default(autoincrement())
+  sender           User         @relation("senderSavedFiles", fields: [senderEmail], references: [email])
+  senderEmail      String
+  receiver         User         @relation("receiverSavedFiles", fields: [receiverEmail], references: [email])
+  receiverEmail    String
+  exchangedKey     ExchangedKey @relation(fields: [idOfEncryptedKey], references: [id])
   idOfEncryptedKey Int
-  name  String
-  type String
-  iv String
-  path String @unique
-  size  Int
-  sentDate DateTime @default(now())
-  delivered Boolean
+  name             String
+  type             String
+  iv               String
+  path             String       @unique
+  size             Int
+  sentDate         DateTime     @default(now())
+  delivered        Boolean
 }
 
 model OTP{
@@ -129,4 +128,9 @@ model OTP{
   email String @unique
   otp String
   CreatedAt DateTime @default(now())
+}
+
+enum KeyType {
+  USER
+  CHANNEL
 }
