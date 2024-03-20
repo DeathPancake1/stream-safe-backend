@@ -14,34 +14,38 @@ async function bootstrap() {
   // Exception for malformed jwt
   app.useGlobalFilters(new JwtMalformedExceptionFilter());
 
-  const options = new DocumentBuilder()
-    .setTitle('Your API Documentation')
-    .setDescription('API Documentation for your Nest.js app')
-    .setVersion('1.0.0')
-    .addBearerAuth(
-      {
-        type: 'http',
-        scheme: 'bearer',
-        bearerFormat: 'JWT',
-        name: 'JWT',
-        description: 'Enter JWT token',
-        in: 'header',
-      },
-      'JWT-auth',
-    )
-    .addApiKey(
-      {
-        type: 'apiKey',
-        name: 'api-key',
-        description: 'The secret key to the api',
-        in: 'header',
-      },
-      'api-key',
-    )
-    .build();
+  var environment = process.env.NODE_ENV.slice(0, -1) || 'development'
+  if (environment === "development"){
+    const options = new DocumentBuilder()
+      .setTitle('Your API Documentation')
+      .setDescription('API Documentation for your Nest.js app')
+      .setVersion('1.0.0')
+      .addBearerAuth(
+        {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+          name: 'JWT',
+          description: 'Enter JWT token',
+          in: 'header',
+        },
+        'JWT-auth',
+      )
+      .addApiKey(
+        {
+          type: 'apiKey',
+          name: 'api-key',
+          description: 'The secret key to the api',
+          in: 'header',
+        },
+        'api-key',
+      )
+      .build();
 
-  const document = SwaggerModule.createDocument(app, options);
-  SwaggerModule.setup('api', app, document);
+    const document = SwaggerModule.createDocument(app, options);
+    SwaggerModule.setup('api', app, document);
+  }
+  
 
   app.enableCors();
   await app.listen(3000);
