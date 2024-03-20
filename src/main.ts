@@ -14,7 +14,7 @@ async function bootstrap() {
   // Exception for malformed jwt
   app.useGlobalFilters(new JwtMalformedExceptionFilter());
 
-  var environment = process.env.NODE_ENV.slice(0, -1) || 'development'
+  var environment = process.env.NODE_ENV || "development"
   if (environment === "development"){
     const options = new DocumentBuilder()
       .setTitle('Your API Documentation')
