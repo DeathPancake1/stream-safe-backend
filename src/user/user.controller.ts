@@ -11,6 +11,7 @@ import { SearchUserDto } from './dto/search-user.dto';
 import { receiveOTPDTO } from './dto/receive-otp.dto';
 import { response } from 'express';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { VerifyEmailDto } from './dto/verify-email.dto';
 
 // Adds swagger headers to the request
 @ApiBearerAuth('api-key')
@@ -68,11 +69,11 @@ export class UserController {
         description: 'Json structure for user object',
     })
     async sendVerMail(
-        @Body() userData: SearchUserDto,
+        @Body() userData: VerifyEmailDto,
         @Res() res:any
     ){
         try{
-            await this.userService.sendVerMail(userData.email)
+            await this.userService.sendVerMail(userData.email,userData.verifyOrForget)
         }
         catch(error){
             res.status(HttpStatus.UNAUTHORIZED).json({ message: 'fail' });

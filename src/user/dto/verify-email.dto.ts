@@ -1,7 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsBoolean, IsEmail, IsInt, IsString } from "class-validator";
 
-export class receiveOTPDTO{
+export class VerifyEmailDto{
     @ApiProperty({
         example: 'john@example.com',
         description: 'Email of the user',
@@ -9,14 +9,8 @@ export class receiveOTPDTO{
     @IsString()
     readonly email: string;
     @ApiProperty({
-        example: '655559',
-        description: 'OTP',
-    })
-    @IsString()
-    readonly otp: string;
-    @ApiProperty({
         example: true,
-        description: 'true for verify the email and false for forgetting password',
+        description: 'true for verification and false for forget password',
     })
     @IsBoolean()
     readonly verifyOrForget: boolean;

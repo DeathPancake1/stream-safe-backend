@@ -30,7 +30,8 @@ model User {
   exchangedKeysForReceiver ExchangedKey[] @relation("receiverEmails")
   savedFilesForSender      SavedFile[]    @relation("senderSavedFiles")
   savedFilesForReceiver    SavedFile[]    @relation("receiverSavedFiles")
-
+  changingPassword         Boolean @default(false)
+  verified                 Boolean @default(false)
 }
 
 model Photo {
@@ -128,6 +129,7 @@ model OTP{
   email String @unique
   otp String
   CreatedAt DateTime @default(now())
+  verifyOrForget Boolean
 }
 
 enum KeyType {

@@ -32,8 +32,8 @@ export class UserService {
                 email: userWhereUniqueInput.email
             }
         })
-        if (!user) {
-            throw new UnauthorizedException('User not found');
+        if (!user || !user.verified) {
+            throw new UnauthorizedException('User not found or not verified');
         }
         //  check using hashed passwords
         const passwordMatches = await bcrypt.compare(userWhereUniqueInput.password,user.password);
@@ -107,8 +107,15 @@ export class UserService {
                 email: data.email
             }
         })
-        if(userCheck){
+        if(userCheck && userCheck.verified){
             throw new UnauthorizedException('User email found');
+        }
+        else if(userCheck && !userCheck.verified){
+            await this.prisma.user.delete({
+                where: {
+                    email: data.email
+                }
+            })
         }
         //hashing the passwords using bcrypt
         const salt = await bcrypt.genSalt();
@@ -122,11 +129,13 @@ export class UserService {
         const email = newUser.email
         return email
     }
-    async sendVerMail(email:string){
-        try{
-            const found = await this.findByEmail(email)
-        }catch(error){
-            throw new HttpException(error.message , HttpStatus.FORBIDDEN);
+    async sendVerMail(email:string, verifyOrForget:boolean){
+        if(!verifyOrForget){
+            try{
+                const found = await this.findByEmail(email)
+            }catch(error){
+                throw new HttpException(error.message , HttpStatus.FORBIDDEN);
+            }
         }
         const user = await this.prisma.oTP.findUnique({
             where:{
@@ -158,14 +167,16 @@ export class UserService {
         await this.prisma.oTP.create({
             data:{
                 email: email,
-                otp: codeStr
+                otp: codeStr,
+                verifyOrForget: verifyOrForget,
             }
         })
     }
     async receiveOTP(data: receiveOTPDTO){
-        const oTPInfo = await this.prisma.oTP.findUnique({
+        const oTPInfo = await this.prisma.oTP.findFirst({
             where:{
-                email: data.email
+                email: data.email,
+                verifyOrForget: data.verifyOrForget,
             }
         })
         if(oTPInfo == null){
@@ -178,19 +189,47 @@ export class UserService {
             return false
         }
         else if(diff<2){
-            // Not needed anymore
+            if(!data.verifyOrForget){
+                await this.prisma.user.update({
+                    data:{
+                        changingPassword: true
+                    },
+                    where:{
+                        email:data.email
+                    }
+                })
+            }
+            else{
+                await this.prisma.user.update({
+                    data:{
+                        verified: true
+                    },
+                    where:{
+                        email:data.email
+                    }
+                })
+            }
             return true
         }
     }
     async changePassword(email: string, password: string){
         const salt = await bcrypt.genSalt();
         const newPassword = await bcrypt.hash(password, salt);
+        const user = await this.prisma.user.findUnique({
+            where:{
+                email:email
+            }
+        })
+        if(!user.changingPassword){
+            throw new HttpException("User didn't verify the email" , HttpStatus.UNAUTHORIZED); 
+        }
         const updatedUser = await this.prisma.user.update({
             data: {
-                password: newPassword
+                password: newPassword,
+                changingPassword: false
             },
             where: {
-                email: email
+                email: email,
             }
         })
     }
