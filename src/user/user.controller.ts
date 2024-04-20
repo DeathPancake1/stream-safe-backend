@@ -73,7 +73,7 @@ export class UserController {
         @Res() res:any
     ){
         try{
-            await this.userService.sendVerMail(userData.email,userData.verifyOrForget)
+            await this.userService.sendVerMail(userData.email,userData.type)
         }
         catch(error){
             res.status(HttpStatus.UNAUTHORIZED).json({ message: 'fail' });

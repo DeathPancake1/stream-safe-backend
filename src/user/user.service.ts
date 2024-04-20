@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from 'src/helpers/database/prisma.service';
-import {  User } from '@prisma/client'
+import {  OTPType, User } from '@prisma/client'
 import { LoginUserDto } from './dto/login-user.dto';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -129,13 +129,11 @@ export class UserService {
         const email = newUser.email
         return email
     }
-    async sendVerMail(email:string, verifyOrForget:boolean){
-        if(!verifyOrForget){
-            try{
-                const found = await this.findByEmail(email)
-            }catch(error){
-                throw new HttpException(error.message , HttpStatus.FORBIDDEN);
-            }
+    async sendVerMail(email:string, type:string){
+        try{
+            const found = await this.findByEmail(email)
+        }catch(error){
+            throw new HttpException(error.message , HttpStatus.FORBIDDEN);
         }
         const user = await this.prisma.oTP.findUnique({
             where:{
@@ -164,19 +162,37 @@ export class UserService {
             html:text
           };
         await this.transporter.sendMail(mailOptions);
-        await this.prisma.oTP.create({
-            data:{
-                email: email,
-                otp: codeStr,
-                verifyOrForget: verifyOrForget,
-            }
-        })
+        if(type == "VERIFYEMAIL"){
+            await this.prisma.oTP.create({
+                data:{
+                    email: email,
+                    otp: codeStr,
+                    type: OTPType.VERIFYEMAIL,
+                }
+            })
+        }
+        else if(type =="FORGETPASSWORD"){
+            await this.prisma.oTP.create({
+                data:{
+                    email: email,
+                    otp: codeStr,
+                    type: OTPType.FORGETPASSWORD,
+                }
+            })
+        }
     }
     async receiveOTP(data: receiveOTPDTO){
+        var typeOfOTP :  OTPType
+        if (data.type == "VERIFYEMAIL"){
+            typeOfOTP = OTPType.VERIFYEMAIL
+        }
+        else if(data.type == "FORGETPASSWORD"){
+            typeOfOTP = OTPType.FORGETPASSWORD
+        }
         const oTPInfo = await this.prisma.oTP.findFirst({
             where:{
                 email: data.email,
-                verifyOrForget: data.verifyOrForget,
+                type: typeOfOTP,
             }
         })
         if(oTPInfo == null){
@@ -189,7 +205,7 @@ export class UserService {
             return false
         }
         else if(diff<2){
-            if(!data.verifyOrForget){
+            if(data.type == "FORGETPASSWORD"){
                 await this.prisma.user.update({
                     data:{
                         changingPassword: true
@@ -199,7 +215,7 @@ export class UserService {
                     }
                 })
             }
-            else{
+            else if (data.type== "VERIFYEMAIL"){
                 await this.prisma.user.update({
                     data:{
                         verified: true

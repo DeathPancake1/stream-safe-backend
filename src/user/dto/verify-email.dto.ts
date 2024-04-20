@@ -9,9 +9,9 @@ export class VerifyEmailDto{
     @IsString()
     readonly email: string;
     @ApiProperty({
-        example: true,
-        description: 'true for verification and false for forget password',
+        example: "VERIFY",
+        description: 'VERIFYEMAIL for verification and FORGETPASSWORD for forget password',
     })
-    @IsBoolean()
-    readonly verifyOrForget: boolean;
+    @IsString()
+    readonly type: string;
 }

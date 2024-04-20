@@ -18,6 +18,6 @@ export class receiveOTPDTO{
         example: true,
         description: 'true for verify the email and false for forgetting password',
     })
-    @IsBoolean()
-    readonly verifyOrForget: boolean;
+    @IsString()
+    readonly type: string;
 }
