@@ -1,7 +1,8 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsBoolean, IsString } from "class-validator";
+import { Transform } from "class-transformer";
+import { IsArray, IsBoolean, IsNumber, IsString } from "class-validator";
 
-export class CreateChannelDTO{
+export class CreateChannelDTO {
     @ApiProperty({
         example: 'Maths III',
         description: 'Channel Title',
@@ -17,9 +18,34 @@ export class CreateChannelDTO{
     readonly description: string;
 
     @ApiProperty({
-        example: 'true',
+        example: 'true', // Accepts string 'true' or 'false'
         description: 'Channel Privacy',
     })
-    @IsBoolean()
-    readonly private: boolean;
+    @IsString()
+    readonly private: string;
+
+    @ApiProperty({
+        example: ['News', 'Updates', 'Events'],
+        description: 'Channel content',
+        
+    })
+    @IsString()
+    readonly channelContent: string;
+
+    @ApiProperty({
+        example: 'English',
+        description: 'Channel language',
+    })
+    @IsString()
+    readonly language: string;
+
+    @ApiProperty({
+        example: 2.5,
+        description: 'Channel rating',
+    })
+    @IsString()
+    readonly rating: Number;
+
+    @ApiProperty({ type: 'file', format: 'binary' })
+    thumbnailPhoto: Express.Multer.File;
 }

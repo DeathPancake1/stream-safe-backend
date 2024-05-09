@@ -1,5 +1,5 @@
-import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Post, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ApiKeyAuthGruard } from 'src/auth/guard/apikey-auth.guard';
 import { JWTAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { ChannelService } from './channel.service';
@@ -7,6 +7,12 @@ import { CreateChannelDTO } from './dto/create-channel.dto';
 import { Channel } from '@prisma/client';
 import { AddMemberDTO } from './dto/add-member.dto';
 import { GetMembersDTO, GetMembersReturnDTO } from './dto/get-members.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname, join } from 'path';
+import * as fs from 'fs';
+import { getChannelByIdDTO } from './dto/get-channel-by-id.dto';
+
 
 // Added guard for Api key check
 @UseGuards(ApiKeyAuthGruard)
@@ -22,17 +28,48 @@ export class ChannelController {
     @Post('createChannel')
     @ApiOperation({ summary: 'Create a new channel' })
     @ApiResponse({ status: 201, description: 'The channel is created.'})
+    @ApiResponse({ status: 500, description: 'Couldn\'t create.' })
     @ApiResponse({ status: 401, description: 'Forbidden.' })
     @ApiBody({
         type: CreateChannelDTO,
         description: 'Json structure for channel object',
     })
+    @ApiConsumes('multipart/form-data')
+    @UseInterceptors(FileInterceptor('thumbnailPhoto', {
+        storage: diskStorage({
+            destination: (req, file, cb) => {
+                const parentDirectory = join('storage', 'images', 'channels');
+                if (!fs.existsSync(parentDirectory)) {
+                    fs.mkdirSync(parentDirectory, { recursive: true });
+                }
+                const temp = join(parentDirectory, `${req.body.channelTitle}`)
+                if (!fs.existsSync(temp)) {
+                    fs.mkdirSync(temp);
+                }
+                return cb(null, temp);
+            },
+            filename: (req, file, cb) => {
+                const randomName = Array(32).fill(null).map(() => (Math.round(Math.random() * 16)).toString(16)).join('');
+                return cb(null, `${randomName}${extname(file.originalname)}`);
+            }
+        })
+    }))
     async createChannel(
         @Body() channelData: CreateChannelDTO,
+        @UploadedFile() file: Express.Multer.File,
         @Req() req:any,
-    ): Promise<String> {
+        @Res() res:any
+    ) {
+        const isPrivate = channelData.private === 'true';
+        const arrayOfContents = channelData.channelContent.split(',')
         const userEmailFromToken = req['userEmail'];
-        return this.channelService.createChannel(channelData, userEmailFromToken)
+        try{
+            await this.channelService.createChannel(channelData,file,isPrivate,arrayOfContents, userEmailFromToken)
+            res.status(201).json({message: 'success'})
+            return
+        }catch(error){
+            res.status(500).json({message: 'fail'})
+        }
     }
 
 
@@ -67,4 +104,44 @@ export class ChannelController {
         const userEmailFromToken = req['userEmail'];
         return this.channelService.getMembers(data, userEmailFromToken)
     }
+    
+    @Post('getAllChannels')
+    @ApiOperation({ summary: 'get all the channels in DB' })
+    @ApiResponse({ status: 201, description: 'got the channels'})
+    @ApiResponse({ status: 401, description: 'Forbidden.' })
+    @ApiResponse({ status: 500, description: 'Forbidden.' })
+    
+    async getAllChannels(
+        @Res() res:any
+    ) {
+        try{
+            var channels = await this.channelService.getAllChannels()
+            res.status(201).json({message:channels}); 
+            return
+        }catch(error){
+            res.status(500).json({ error: 'Failed to fetch channels' }); 
+            return
+        }
+    }
+
+
+    @Post('getChannelInfoById')
+    @ApiOperation({ summary: 'get all the channels in DB' })
+    @ApiResponse({ status: 201, description: 'got them succesfully'})
+    @ApiResponse({ status: 401, description: 'Forbidden.' })
+    @ApiResponse({ status: 500, description: 'failed.' })
+    async getChannelInfoById(
+        @Body() channelId:getChannelByIdDTO,
+        @Res() res:any
+    ) {
+        try{
+            var channelInfo = await this.channelService.getChannelInfoById(channelId.id)
+            res.status(201).json({message:channelInfo}); 
+            return
+        }catch(error){
+            res.status(500).json({ error: 'Didn\'t find the channel' }); 
+            return
+        }
+    }
+
 }

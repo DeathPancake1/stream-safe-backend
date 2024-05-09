@@ -36,30 +36,30 @@ model User {
 
 model Photo {
   id      Int      @id @default(autoincrement())
-  url     String
-  created DateTime @default(now())
-
-  // Relationships
+  path     String
   owner User?
-  // channel   Channel?
+  channel   Channel?
 }
 
 model Channel {
-  id           String   @id @default(uuid())
+  id           String   @id @default(uuid()) @unique
   title        String
   description  String
   private      Boolean
   created      DateTime @default(now())
   lastActive   DateTime @updatedAt
   totalMembers Int
+  channelContent String[]
+  language String
+  rating Float
 
   // Relationshitps
   // subscriptionPlan  Subscription @relation(fields: [subscriptionId], references: [id])
   // subscriptionId    Int
   owner        User           @relation("OwnedChannels", fields: [ownerId], references: [id])
   ownerId      Int
-  // thumbnail Photo @relation(fields: [thumbnailId], references: [id])
-  // thumbnailId Int @unique
+  thumbnail Photo? @relation(fields: [thumbnailId], references: [id])
+  thumbnailId Int? @unique
   subscribers  User[]         @relation("Subscriptions")
   channelKeys  ExchangedKey[] @relation("ChannelKeys")
   channelVideos Video[]       @relation("ChannelVideos")

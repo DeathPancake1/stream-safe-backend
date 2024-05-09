@@ -9,7 +9,7 @@ export class VerifyEmailDto{
     @IsString()
     readonly email: string;
     @ApiProperty({
-        example: "VERIFY",
+        example: "VERIFYEMAIL",
         description: 'VERIFYEMAIL for verification and FORGETPASSWORD for forget password',
     })
     @IsString()

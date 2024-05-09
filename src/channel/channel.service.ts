@@ -4,15 +4,46 @@ import { CreateChannelDTO } from './dto/create-channel.dto';
 import { AddMemberDTO } from './dto/add-member.dto';
 import { GetMembersDTO, GetMembersReturnDTO } from './dto/get-members.dto';
 import { KeyType } from '@prisma/client';
+import path from 'path';
+import * as fs from 'fs';
+
 
 @Injectable()
 export class ChannelService {
+
+    
     constructor(private prisma: PrismaService) {}
+
+    async getChannelInfoById(id: string) {
+        try{
+            var channelInfo = await this.prisma.channel.findUnique({
+                where:{
+                    id: String(id)
+                }
+            })
+            
+            return channelInfo
+        }catch(error){
+            throw new Error('Didn\'t find the channel');
+        }
+    }
+
+    async getAllChannels() {
+        try{
+            var channels = await this.prisma.channel.findMany()
+            return channels
+        }catch(error){
+            throw new Error('Failed to fetch channels');
+        }
+    }
 
     async createChannel (
         newChannel: CreateChannelDTO,
+        file: Express.Multer.File,
+        isPrivate: boolean,
+        arrayOfContents:string[],
         ownerEmail: string
-    ): Promise<String | null>{
+    ){
         const userOwner = await this.prisma.user.findUnique({
             where: {
                 email: ownerEmail
@@ -21,19 +52,40 @@ export class ChannelService {
         if(!userOwner){
             throw new UnauthorizedException('User email not found');
         }
+        let thumbnailPhotoId: number | undefined;
+        if (file){
+            const thumbnailPhoto = await this.prisma.photo.create({
+                data:{
+                    path:file.path
+                }
+            })
+            thumbnailPhotoId = thumbnailPhoto.id;
 
+        }
         const createdChannel = await this.prisma.channel.create({
             data: {
-                ...newChannel,
+                title:newChannel.title,
+                description: newChannel.description,
+                private:isPrivate,
+                channelContent: arrayOfContents,
+                language:newChannel.language,
+                rating: +newChannel.rating,
                 owner: {
                     connect: {
                         id: userOwner.id
                     }
                 },
-                totalMembers: 0
+                totalMembers: 0,
+                thumbnail: thumbnailPhotoId
+                ? {
+                    connect: {
+                        id: thumbnailPhotoId,
+                    },
+                    }
+                : undefined,
             }
         })
-        return createdChannel.id
+        return 
     }
 
     async addMember (
@@ -159,4 +211,5 @@ export class ChannelService {
 
         return { totalMembers: channel.totalMembers, subscribers: channel.subscribers }
     }
+    
 }

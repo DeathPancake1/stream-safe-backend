@@ -75,7 +75,7 @@ export class ChannelFilesService {
 
         const videos = await this.prisma.video.findMany({
             where:{
-                channel: channel
+                channelId: channel.id
             }
         })
         return videos

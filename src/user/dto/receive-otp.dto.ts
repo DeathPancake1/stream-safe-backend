@@ -15,8 +15,8 @@ export class receiveOTPDTO{
     @IsString()
     readonly otp: string;
     @ApiProperty({
-        example: true,
-        description: 'true for verify the email and false for forgetting password',
+        example: "VERIFYEMAIL",
+        description: 'VERIFYEMAIL for verify the email and FORGETPASSWORD for forgetting password',
     })
     @IsString()
     readonly type: string;

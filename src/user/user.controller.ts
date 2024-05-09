@@ -65,7 +65,7 @@ export class UserController {
     @ApiResponse({ status: 401, description: 'User not found.' })
     @ApiBody({
         // msh m7tagin new dto
-        type: SearchUserDto,
+        type: VerifyEmailDto,
         description: 'Json structure for user object',
     })
     async sendVerMail(
@@ -110,6 +110,7 @@ export class UserController {
         }
         catch(error){
             res.status(HttpStatus.UNAUTHORIZED).json({ message: 'fail' });
+            return
         }
     }
 
@@ -133,6 +134,7 @@ export class UserController {
         }
         catch(error){
             res.status(HttpStatus.UNAUTHORIZED).json({ message: 'fail' });
+            return
         }
     }
 }

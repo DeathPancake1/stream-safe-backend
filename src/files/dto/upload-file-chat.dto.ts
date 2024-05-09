@@ -2,7 +2,7 @@ import { UploadedFile } from "@nestjs/common";
 import { ApiProperty } from "@nestjs/swagger";
 import { IsEmail, IsInt, IsString } from "class-validator";
 
-export class UploadFileDto{
+export class UploadFileChatDto{
     @ApiProperty({
         example: "john1@example.com",
         description: 'email of sender ',
