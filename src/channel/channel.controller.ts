@@ -42,7 +42,8 @@ export class ChannelController {
                 if (!fs.existsSync(parentDirectory)) {
                     fs.mkdirSync(parentDirectory, { recursive: true });
                 }
-                const temp = join(parentDirectory, `${req.body.channelTitle}`)
+                console.log(req.body)
+                const temp = join(parentDirectory, `${req.body.title}`)
                 if (!fs.existsSync(temp)) {
                     fs.mkdirSync(temp);
                 }

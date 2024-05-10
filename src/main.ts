@@ -4,6 +4,9 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { GlobalValidationPipe } from './global-validation.pipe';
 import { JwtMalformedExceptionFilter } from './auth/guard/jwt.exception-filter';
+import { join } from 'path';
+
+var express = require("express")
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -46,6 +49,7 @@ async function bootstrap() {
     SwaggerModule.setup('api', app, document);
   }
   
+
 
   app.enableCors();
   await app.listen(3000);

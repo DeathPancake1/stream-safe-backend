@@ -13,6 +13,8 @@ import { FilesModule } from './files/files.module';
 import { ChannelService } from './channel/channel.service';
 import { ChannelModule } from './channel/channel.module';
 import { ChannelFilesModule } from './channel-files/channel-files.module';
+import { PhotosController } from './photos/photos.controller';
+import { PhotosService } from './photos/photos.service';
 
 @Module({
   imports: [ 
@@ -25,8 +27,8 @@ import { ChannelFilesModule } from './channel-files/channel-files.module';
     ChannelModule, 
     ChannelFilesModule,
   ],
-  controllers: [],
-  providers: [ JwtStrategy, UserService, PrismaService, FilesService, ChannelService],
+  controllers: [PhotosController],
+  providers: [ JwtStrategy, UserService, PrismaService, FilesService, ChannelService, PhotosService],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {

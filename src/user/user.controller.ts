@@ -12,6 +12,7 @@ import { receiveOTPDTO } from './dto/receive-otp.dto';
 import { response } from 'express';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
+import { getUserInfoByIdDTO } from './dto/get-user-info-by-id.dto';
 
 // Adds swagger headers to the request
 @ApiBearerAuth('api-key')
@@ -136,5 +137,33 @@ export class UserController {
             res.status(HttpStatus.UNAUTHORIZED).json({ message: 'fail' });
             return
         }
+    }
+
+    @Post('getUserInfoById')
+    @ApiBearerAuth('JWT-auth')
+    @UseGuards(ApiKeyAuthGruard)
+    @UseGuards(JWTAuthGuard)
+    @ApiOperation({ summary: 'get info about the user from his id' })
+    @ApiResponse({ status: 201, description: 'The user is found.'})
+    @ApiResponse({ status: 500, description: 'error from the server.'})
+    @ApiResponse({ status: 401, description: 'Forbidden.' })
+    @ApiBody({
+        type: getUserInfoByIdDTO,
+        description: 'id of the user needed',
+    })
+    async getUserInfoById(
+        @Body() userData: getUserInfoByIdDTO,
+        @Req() req:any,
+        @Res() res:any
+    ) {
+        try{
+            var userInfo =  await this.userService.getUserInfoById(userData.id)
+            res.status(201).json({message: userInfo})
+            return
+        }catch(error){
+            res.status(404).json({message: 'user not found'})
+            return
+        }
+
     }
 }

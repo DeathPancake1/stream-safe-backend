@@ -11,6 +11,7 @@ import { receiveOTPDTO } from './dto/receive-otp.dto';
 
 @Injectable()
 export class UserService {
+
     private transporter
     constructor(private prisma: PrismaService) {
         this.transporter = nodemailer.createTransport({
@@ -249,6 +250,26 @@ export class UserService {
             }
         })
     }
+
+    async getUserInfoById(id: number) {
+        const user = await this.prisma.user.findUnique({
+            where:{
+                id:id
+            },
+            select: {
+                firstname: true,
+                lastname: true,
+                photoId: true
+              }
+        })
+        if(user){
+            return user
+        }
+        else{
+          throw new HttpException("didnt find this id" , HttpStatus.NOT_FOUND); 
+        }
+    }
+
     // async updateUser(params: {
     //     where: Prisma.UserWhereUniqueInput;
     //     data: Prisma.UserUpdateInput;
