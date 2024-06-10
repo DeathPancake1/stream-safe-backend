@@ -30,7 +30,11 @@ export class ChannelService {
 
     async getAllChannels() {
         try{
-            var channels = await this.prisma.channel.findMany()
+            var channels = await this.prisma.channel.findMany({
+                where: {
+                    private: false
+                }
+            })
             return channels
         }catch(error){
             throw new Error('Failed to fetch channels');

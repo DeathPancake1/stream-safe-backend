@@ -30,39 +30,39 @@ model User {
   exchangedKeysForReceiver ExchangedKey[] @relation("receiverEmails")
   savedFilesForSender      SavedFile[]    @relation("senderSavedFiles")
   savedFilesForReceiver    SavedFile[]    @relation("receiverSavedFiles")
-  changingPassword         Boolean @default(false)
-  verified                 Boolean @default(false)
+  changingPassword         Boolean        @default(false)
+  verified                 Boolean        @default(false)
 }
 
 model Photo {
   id      Int      @id @default(autoincrement())
-  path     String
-  owner User?
-  channel   Channel?
+  path    String
+  owner   User?
+  channel Channel?
 }
 
 model Channel {
-  id           String   @id @default(uuid()) @unique
-  title        String
-  description  String
-  private      Boolean
-  created      DateTime @default(now())
-  lastActive   DateTime @updatedAt
-  totalMembers Int
+  id             String   @id @unique @default(uuid())
+  title          String
+  description    String
+  private        Boolean
+  created        DateTime @default(now())
+  lastActive     DateTime @updatedAt
+  totalMembers   Int
   channelContent String[]
-  language String
-  rating Float
+  language       String   @default("English")
+  rating         Float    @default(0)
 
   // Relationshitps
   // subscriptionPlan  Subscription @relation(fields: [subscriptionId], references: [id])
   // subscriptionId    Int
-  owner        User           @relation("OwnedChannels", fields: [ownerId], references: [id])
-  ownerId      Int
-  thumbnail Photo? @relation(fields: [thumbnailId], references: [id])
-  thumbnailId Int? @unique
-  subscribers  User[]         @relation("Subscriptions")
-  channelKeys  ExchangedKey[] @relation("ChannelKeys")
-  channelVideos Video[]       @relation("ChannelVideos")
+  owner         User           @relation("OwnedChannels", fields: [ownerId], references: [id])
+  ownerId       Int
+  thumbnail     Photo?         @relation(fields: [thumbnailId], references: [id])
+  thumbnailId   Int?           @unique
+  subscribers   User[]         @relation("Subscriptions")
+  channelKeys   ExchangedKey[] @relation("ChannelKeys")
+  channelVideos Video[]        @relation("ChannelVideos")
 }
 
 // model Subscription {
@@ -76,20 +76,20 @@ model Channel {
 // }
 
 model Video {
-  id               Int           @id @default(autoincrement())
-  name             String
-  type             String
-  iv               String
-  path             String       @unique
-  size             Int
-  sentDate         DateTime     @default(now())
-  channel          Channel      @relation("ChannelVideos", fields: [channelId], references: [id])
-  channelId        String
+  id        Int      @id @default(autoincrement())
+  name      String
+  type      String
+  iv        String
+  path      String   @unique
+  size      Int
+  sentDate  DateTime @default(now())
+  channel   Channel  @relation("ChannelVideos", fields: [channelId], references: [id])
+  channelId String
 }
 
 model Tag {
-  id        Int @id @default(autoincrement())
-  title     String
+  id    Int    @id @default(autoincrement())
+  title String
 }
 
 model ExchangedKey {
@@ -124,12 +124,12 @@ model SavedFile {
   delivered        Boolean
 }
 
-model OTP{
-  id  Int @id @default(autoincrement())
-  email String @unique
-  otp String
+model OTP {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  otp       String
   CreatedAt DateTime @default(now())
-  type OTPType @default(VERIFYEMAIL)
+  type      OTPType  @default(VERIFYEMAIL)
 }
 
 enum KeyType {
@@ -137,7 +137,7 @@ enum KeyType {
   CHANNEL
 }
 
-enum OTPType{
+enum OTPType {
   VERIFYEMAIL
   FORGETPASSWORD
 }
