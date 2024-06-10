@@ -53,6 +53,7 @@ export class ChannelService {
             {
               title: {
                 contains: name,
+                mode: 'insensitive',
               },
             },
           ],
@@ -114,6 +115,7 @@ export class ChannelService {
             {
                 title: {
                     contains: searchTitle,
+                    mode: 'insensitive',
                 },
             },
           ],
