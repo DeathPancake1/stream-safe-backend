@@ -12,6 +12,7 @@ import { diskStorage } from 'multer';
 import { extname, join } from 'path';
 import * as fs from 'fs';
 import { getChannelByIdDTO } from './dto/get-channel-by-id.dto';
+import { searchAllChannelsDTO } from './dto/search-all-channels.dto';
 
 
 // Added guard for Api key check
@@ -117,6 +118,75 @@ export class ChannelController {
     ) {
         try{
             var channels = await this.channelService.getAllChannels()
+            res.status(201).json({message:channels}); 
+            return
+        }catch(error){
+            res.status(500).json({ error: 'Failed to fetch channels' }); 
+            return
+        }
+    }
+
+    @Post('searchAllChannels')
+    @ApiOperation({ summary: 'search all the channels in DB' })
+    @ApiResponse({ status: 201, description: 'got the channels'})
+    @ApiResponse({ status: 401, description: 'Forbidden.' })
+    @ApiResponse({ status: 500, description: 'Forbidden.' })
+    @ApiBody({
+        type: searchAllChannelsDTO,
+        description: 'Json structure for channel',
+    })
+    async searchAllChannels(
+        @Body() data: searchAllChannelsDTO,
+        @Res() res:any
+    ) {
+        try{
+            var channels = await this.channelService.searchAllChannels(data.title)
+            res.status(201).json({message:channels}); 
+            return
+        }catch(error){
+            res.status(500).json({ error: 'Failed to fetch channels' }); 
+            return
+        }
+    }
+
+    @Post('getMyChannels')
+    @ApiOperation({ summary: 'get my channels in DB' })
+    @ApiResponse({ status: 201, description: 'got the channels'})
+    @ApiResponse({ status: 401, description: 'Forbidden.' })
+    @ApiResponse({ status: 500, description: 'Forbidden.' })
+    
+    async getMyChannels(
+        @Req() req: any,
+        @Res() res:any
+    ) {
+        try{
+            const userEmailFromToken = req['userEmail'];
+            var channels = await this.channelService.getMyChannels(userEmailFromToken)
+            res.status(201).json({message:channels}); 
+            return
+        }catch(error){
+            res.status(500).json({ error: 'Failed to fetch channels' }); 
+            return
+        }
+    }
+
+    @Post('searchMyChannels')
+    @ApiOperation({ summary: 'search my channels in DB' })
+    @ApiResponse({ status: 201, description: 'got the channels'})
+    @ApiResponse({ status: 401, description: 'Forbidden.' })
+    @ApiResponse({ status: 500, description: 'Forbidden.' })
+    @ApiBody({
+        type: searchAllChannelsDTO,
+        description: 'Json structure for channel',
+    })
+    async searchMyChannels(
+        @Body() data: searchAllChannelsDTO,
+        @Res() res:any,
+        @Req() req:any
+    ) {
+        try{
+            const userEmailFromToken = req['userEmail'];
+            var channels = await this.channelService.searchMyChannels(userEmailFromToken, data.title)
             res.status(201).json({message:channels}); 
             return
         }catch(error){
