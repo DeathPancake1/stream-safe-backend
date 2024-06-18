@@ -62,11 +62,9 @@ export class ChannelController {
         @Req() req:any,
         @Res() res:any
     ) {
-        const isPrivate = channelData.private === 'true';
-        const arrayOfContents = channelData.channelContent.split(',')
         const userEmailFromToken = req['userEmail'];
         try{
-            await this.channelService.createChannel(channelData,file,isPrivate,arrayOfContents, userEmailFromToken)
+            await this.channelService.createChannel(channelData,file,channelData.private === "true", userEmailFromToken)
             res.status(201).json({message: 'success'})
             return
         }catch(error){

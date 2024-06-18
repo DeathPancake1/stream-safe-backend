@@ -129,7 +129,6 @@ export class ChannelService {
         newChannel: CreateChannelDTO,
         file: Express.Multer.File,
         isPrivate: boolean,
-        arrayOfContents: string[],
         ownerEmail: string
     ) {
         const userOwner = await this.prisma.user.findUnique({
@@ -154,9 +153,6 @@ export class ChannelService {
                 title: newChannel.title,
                 description: newChannel.description,
                 private: isPrivate,
-                channelContent: arrayOfContents,
-                language: newChannel.language,
-                rating: +newChannel.rating,
                 owner: {
                     connect: {
                         id: userOwner.id,
@@ -172,7 +168,7 @@ export class ChannelService {
                     : undefined,
             },
         });
-        return;
+        return createdChannel;
     }
 
     async addMember(

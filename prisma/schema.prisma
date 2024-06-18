@@ -49,10 +49,7 @@ model Channel {
   created        DateTime @default(now())
   lastActive     DateTime @updatedAt
   totalMembers   Int
-  channelContent String[]
-  language       String   @default("English")
-  rating         Float    @default(0)
-
+  
   // Relationshitps
   // subscriptionPlan  Subscription @relation(fields: [subscriptionId], references: [id])
   // subscriptionId    Int

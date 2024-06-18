@@ -24,28 +24,6 @@ export class CreateChannelDTO {
     @IsString()
     readonly private: string;
 
-    @ApiProperty({
-        example: ['News', 'Updates', 'Events'],
-        description: 'Channel content',
-        
-    })
-    @IsString()
-    readonly channelContent: string;
-
-    @ApiProperty({
-        example: 'English',
-        description: 'Channel language',
-    })
-    @IsString()
-    readonly language: string;
-
-    @ApiProperty({
-        example: 2.5,
-        description: 'Channel rating',
-    })
-    @IsString()
-    readonly rating: Number;
-
     @ApiProperty({ type: 'file', format: 'binary' })
     thumbnailPhoto: Express.Multer.File;
 }
