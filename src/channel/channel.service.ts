@@ -74,7 +74,7 @@ export class ChannelService {
                     },
                 },
             });
-            var registeredchannels = await this.prisma.channel.findMany({
+            var registeredChannels = await this.prisma.channel.findMany({
                 where: {
                     subscribers: {
                         some: {
@@ -83,7 +83,7 @@ export class ChannelService {
                     },
                 }
             })
-            return {ownedChannels,registeredchannels};
+            return {ownedChannels,registeredChannels};
         } catch (error) {
             throw new Error("Failed to fetch channels");
         }
