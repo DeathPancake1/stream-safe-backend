@@ -306,7 +306,8 @@ export class ChannelService {
                     id: id,
                 },
                 include: {
-                    subscribers: true
+                    subscribers: true,
+                    owner: true
                 }
             });
 
@@ -315,7 +316,8 @@ export class ChannelService {
             }
     
             const isMember = channel.subscribers.some(subscriber => subscriber.email === email);
-            if (isMember){
+            const isOwner = channel.owner.email === email
+            if (isMember || isOwner){
                 return "Member"
             }
 
