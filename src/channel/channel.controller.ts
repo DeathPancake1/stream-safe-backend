@@ -213,4 +213,25 @@ export class ChannelController {
         }
     }
 
+    @Post('checkIfMember')
+    @ApiOperation({ summary: 'check if user is a member or requested to join a channel' })
+    @ApiResponse({ status: 201, description: 'Not Member or Member or Pending'})
+    @ApiResponse({ status: 401, description: 'Forbidden.' })
+    @ApiResponse({ status: 500, description: 'failed.' })
+    async checkIfMember(
+        @Body() channelId:getChannelByIdDTO,
+        @Req() req: any,
+        @Res() res:any
+    ) {
+        try{
+            const userEmailFromToken = req['userEmail'];
+            var channelInfo = await this.channelService.checkIfMember(channelId.id, userEmailFromToken)
+            res.status(201).json({message:channelInfo}); 
+            return
+        }catch(error){
+            res.status(500).json({ error: 'Didn\'t find the channel' }); 
+            return
+        }
+    }
+
 }

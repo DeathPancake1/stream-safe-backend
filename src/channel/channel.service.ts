@@ -298,4 +298,41 @@ export class ChannelService {
             subscribers: channel.subscribers,
         };
     }
+
+    async checkIfMember(id: string, email: string) {
+        try {
+            const channel = await this.prisma.channel.findUnique({
+                where: {
+                    id: id,
+                },
+                include: {
+                    subscribers: true
+                }
+            });
+
+            if (!channel) {
+                throw new Error("Didn't find the channel");
+            }
+    
+            const isMember = channel.subscribers.some(subscriber => subscriber.email === email);
+            if (isMember){
+                return "Member"
+            }
+
+            const request = await this.prisma.channelRequest.findFirst({
+                where: {
+                    channelId: id,
+                    senderEmail: email
+                }
+            })
+
+            if (!request) {
+                return "Not Member"
+            }else{
+                return "Pending"
+            }
+        } catch (error) {
+            throw new Error("Didn't find the channel");
+        }
+    }
 }
