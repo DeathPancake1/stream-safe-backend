@@ -1,90 +1,102 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { PrismaService } from 'src/helpers/database/prisma.service';
-import { ExchangedKey, User } from '@prisma/client'
+import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { PrismaService } from "src/helpers/database/prisma.service";
+import { ExchangedKey, User } from "@prisma/client";
 
 @Injectable()
 export class ExchangedKeysService {
     constructor(private prisma: PrismaService) {}
-    async exchangeSymmetricKey(senderEmail: string, receiverEmail: string, key: string): Promise<Boolean>{
+    async exchangeSymmetricKey(
+        senderEmail: string,
+        receiverEmail: string,
+        key: string
+    ): Promise<Boolean> {
         const sender = await this.prisma.user.findUnique({
             where: {
-                email: senderEmail
-            }
-        })
+                email: senderEmail,
+            },
+        });
         const receiver = await this.prisma.user.findUnique({
             where: {
-                email: receiverEmail
-            }
-        })
+                email: receiverEmail,
+            },
+        });
         if (!sender || !receiver) {
-            throw new UnauthorizedException('User not found');
+            throw new UnauthorizedException("User not found");
         }
-        const exists = await this.checkConversationKey(senderEmail, receiverEmail)
-        if(exists){
-            throw new UnauthorizedException('Key already exists');
+        const exists = await this.checkConversationKey(
+            senderEmail,
+            receiverEmail
+        );
+        if (exists) {
+            throw new UnauthorizedException("Key already exists");
         }
         await this.prisma.exchangedKey.create({
             data: {
-                sender:{
-                    connect:{
-                        email: senderEmail
-                    }
+                sender: {
+                    connect: {
+                        email: senderEmail,
+                    },
                 },
-                receiver:{
-                    connect:{
-                        email: receiverEmail
-                    }
+                receiver: {
+                    connect: {
+                        email: receiverEmail,
+                    },
                 },
                 encryptedKey: key,
-                delivered: false
-            }
-        })
+                delivered: false,
+            },
+        });
         return true;
     }
-    async receiverDelivered(
-            userEmail: string
-        ): Promise<ExchangedKey[]>{
+    async receiverDelivered(userEmail: string): Promise<ExchangedKey[]> {
         const keys = await this.prisma.exchangedKey.findMany({
-            where:{
+            where: {
                 receiverEmail: userEmail,
-                delivered:false
+                delivered: false,
             },
             include: {
-                channel: true
-            }
-        })
-        if(keys.length){
+                channel: true,
+            },
+        });
+        if (keys.length) {
             await this.prisma.exchangedKey.updateMany({
-                where:{
+                where: {
                     receiverEmail: userEmail,
-                    delivered:false
+                    delivered: false,
                 },
-                data:{
-                    delivered:true
-                }
-            })
+                data: {
+                    delivered: true,
+                },
+            });
         }
-        return keys
+        return keys;
     }
 
     async checkConversationKey(
         senderEmail: string,
         receiverEmail: string
-    ): Promise<Boolean>{
+    ): Promise<Boolean> {
         const exchanged = await this.prisma.exchangedKey.findFirst({
-            where:{
-                OR: [
+            where: {
+                AND: [
                     {
-                        senderEmail: senderEmail,
-                        receiverEmail: receiverEmail,
+                        OR: [
+                            {
+                                senderEmail: senderEmail,
+                                receiverEmail: receiverEmail,
+                            },
+                            {
+                                senderEmail: receiverEmail,
+                                receiverEmail: senderEmail,
+                            },
+                        ],
                     },
                     {
-                        senderEmail: receiverEmail,
-                        receiverEmail: senderEmail,
+                        channelId: null,
                     },
                 ],
-            }
-        })
+            },
+        });
 
         return !!exchanged;
     }
