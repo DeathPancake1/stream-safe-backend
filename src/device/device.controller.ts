@@ -61,7 +61,7 @@ export class DeviceController {
     }
 
     @Post('checkId')
-    @ApiOperation({ summary: 'Chech if device id is valid' })
+    @ApiOperation({ summary: 'Check if device id is valid' })
     @ApiResponse({ status: 201, description: 'The check is done.'})
     @ApiResponse({ status: 401, description: 'Forbidden.' })
     @ApiBody({

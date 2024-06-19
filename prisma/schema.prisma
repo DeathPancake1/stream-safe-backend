@@ -22,16 +22,17 @@ model User {
   publicKey          String?
 
   // Relationships
-  photo                    Photo?         @relation(fields: [photoId], references: [id])
-  photoId                  Int?           @unique
-  subscripedChannels       Channel[]      @relation("Subscriptions")
-  ownedChannels            Channel[]      @relation("OwnedChannels")
-  exchangedKeysForSender   ExchangedKey[] @relation("senderEmails")
-  exchangedKeysForReceiver ExchangedKey[] @relation("receiverEmails")
-  savedFilesForSender      SavedFile[]    @relation("senderSavedFiles")
-  savedFilesForReceiver    SavedFile[]    @relation("receiverSavedFiles")
-  changingPassword         Boolean        @default(false)
-  verified                 Boolean        @default(false)
+  photo                    Photo?            @relation(fields: [photoId], references: [id])
+  photoId                  Int?              @unique
+  subscripedChannels       Channel[]         @relation("Subscriptions")
+  ownedChannels            Channel[]         @relation("OwnedChannels")
+  exchangedKeysForSender   ExchangedKey[]    @relation("senderEmails")
+  exchangedKeysForReceiver ExchangedKey[]    @relation("receiverEmails")
+  savedFilesForSender      SavedFile[]       @relation("senderSavedFiles")
+  savedFilesForReceiver    SavedFile[]       @relation("receiverSavedFiles")
+  changingPassword         Boolean           @default(false)
+  verified                 Boolean           @default(false)
+  channelRequests          ChannelRequest[]
 }
 
 model Photo {
@@ -42,24 +43,25 @@ model Photo {
 }
 
 model Channel {
-  id             String   @id @unique @default(uuid())
-  title          String
-  description    String
-  private        Boolean
-  created        DateTime @default(now())
-  lastActive     DateTime @updatedAt
-  totalMembers   Int
-  
+  id           String   @id @unique @default(uuid())
+  title        String
+  description  String
+  private      Boolean
+  created      DateTime @default(now())
+  lastActive   DateTime @updatedAt
+  totalMembers Int
+
   // Relationshitps
   // subscriptionPlan  Subscription @relation(fields: [subscriptionId], references: [id])
   // subscriptionId    Int
-  owner         User           @relation("OwnedChannels", fields: [ownerId], references: [id])
-  ownerId       Int
-  thumbnail     Photo?         @relation(fields: [thumbnailId], references: [id])
-  thumbnailId   Int?           @unique
-  subscribers   User[]         @relation("Subscriptions")
-  channelKeys   ExchangedKey[] @relation("ChannelKeys")
-  channelVideos Video[]        @relation("ChannelVideos")
+  owner           User              @relation("OwnedChannels", fields: [ownerId], references: [id])
+  ownerId         Int
+  thumbnail       Photo?            @relation(fields: [thumbnailId], references: [id])
+  thumbnailId     Int?              @unique
+  subscribers     User[]            @relation("Subscriptions")
+  channelKeys     ExchangedKey[]    @relation("ChannelKeys")
+  channelVideos   Video[]           @relation("ChannelVideos")
+  channelRequests ChannelRequest[]
 }
 
 // model Subscription {
@@ -127,6 +129,14 @@ model OTP {
   otp       String
   CreatedAt DateTime @default(now())
   type      OTPType  @default(VERIFYEMAIL)
+}
+
+model ChannelRequest {
+  id          Int      @id @default(autoincrement())
+  sender      User     @relation(fields: [senderEmail], references: [email])
+  senderEmail String
+  channel     Channel @relation(fields: [channelId], references: [id])
+  channelId   String
 }
 
 enum KeyType {

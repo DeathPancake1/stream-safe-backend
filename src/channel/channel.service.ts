@@ -168,7 +168,7 @@ export class ChannelService {
                     : undefined,
             },
         });
-        return createdChannel;
+        return createdChannel.id;
     }
 
     async addMember(

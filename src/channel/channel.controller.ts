@@ -64,8 +64,8 @@ export class ChannelController {
     ) {
         const userEmailFromToken = req['userEmail'];
         try{
-            await this.channelService.createChannel(channelData,file,channelData.private === "true", userEmailFromToken)
-            res.status(201).json({message: 'success'})
+            const channelId = await this.channelService.createChannel(channelData,file,channelData.private === "true", userEmailFromToken)
+            res.status(201).json(channelId)
             return
         }catch(error){
             res.status(500).json({message: 'fail'})

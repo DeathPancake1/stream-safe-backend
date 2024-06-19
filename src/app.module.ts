@@ -15,6 +15,7 @@ import { ChannelModule } from './channel/channel.module';
 import { ChannelFilesModule } from './channel-files/channel-files.module';
 import { PhotosController } from './photos/photos.controller';
 import { PhotosService } from './photos/photos.service';
+import { ChannelRequestModule } from './channel-request/channel-request.module';
 
 @Module({
   imports: [ 
@@ -25,7 +26,7 @@ import { PhotosService } from './photos/photos.service';
     ExchangedKeysModule, 
     FilesModule, 
     ChannelModule, 
-    ChannelFilesModule,
+    ChannelFilesModule, ChannelRequestModule,
   ],
   controllers: [PhotosController],
   providers: [ JwtStrategy, UserService, PrismaService, FilesService, ChannelService, PhotosService],
