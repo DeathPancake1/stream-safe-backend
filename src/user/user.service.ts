@@ -259,7 +259,8 @@ export class UserService {
             select: {
                 firstname: true,
                 lastname: true,
-                photoId: true
+                photoId: true,
+                email: true
               }
         })
         if(user){
