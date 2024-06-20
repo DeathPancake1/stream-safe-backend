@@ -3,7 +3,7 @@ import { UploadFileDto } from './dto/upload-file.dto';
 import { PrismaService } from 'src/helpers/database/prisma.service';
 import { SavedFile, ExchangedKey, Video } from '@prisma/client';
 import * as fs from 'fs';
-import { channel } from 'diagnostics_channel';
+import { channel, subscribe } from 'diagnostics_channel';
 
 @Injectable()
 export class ChannelFilesService {
@@ -22,6 +22,8 @@ export class ChannelFilesService {
                             email: emailFromToken
                         }}
                     ]
+                },include:{
+                    subscribers:true
                 }
             })
 
@@ -43,6 +45,18 @@ export class ChannelFilesService {
                     }
                 },
             });
+
+            const subscribers =channel.subscribers 
+            const videoMessagesData = subscribers.map(subscriber => ({
+                receiver: subscriber.email,
+                delivered: false,
+                videoId: video.id
+              }));
+
+            await this.prisma.videoMessage.createMany({
+                data: videoMessagesData
+            });
+            
 
             return video;
         } catch (error) {

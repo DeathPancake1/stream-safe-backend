@@ -75,15 +75,24 @@ model Channel {
 // }
 
 model Video {
-  id        Int      @id @default(autoincrement())
+  id        Int             @id @default(autoincrement())
   name      String
   type      String
   iv        String
-  path      String   @unique
+  path      String          @unique
   size      Int
-  sentDate  DateTime @default(now())
-  channel   Channel  @relation("ChannelVideos", fields: [channelId], references: [id])
+  sentDate  DateTime        @default(now())
+  channel   Channel         @relation("ChannelVideos", fields: [channelId], references: [id])
   channelId String
+  messages  VideoMessage[]  @relation("VideoMessages")
+}
+
+model VideoMessage {
+  id      Int    @id @default(autoincrement())
+  receiver String
+  delivered Boolean
+  video   Video  @relation("VideoMessages", fields: [videoId], references: [id])
+  videoId Int
 }
 
 model Tag {
