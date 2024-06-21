@@ -9,7 +9,7 @@ import { extname, join } from 'path';
 import { UploadFileDto } from './dto/upload-file.dto';
 import * as fs from 'fs';
 import { Response } from 'express';
-import { Video } from '@prisma/client';
+import { Video, VideoMessage } from '@prisma/client';
 import { GetMessagesFromChatDto } from './dto/get-messages-from-chat.dto';
 import { DownloadFileDto } from './dto/download-file.dto';
 import { ChannelFilesService } from './channel-files.service';
@@ -80,21 +80,19 @@ export class ChannelFilesController {
         }
     }
 
-    @Post('getMessagesFromChannel')
+    @Get('getMessagesFromChannel')
     @ApiOperation({ summary: 'Get the messages of a certain channel' })
     @ApiResponse({ status: 201, description: 'Chat is loaded successfully'})
     @ApiResponse({ status: 400, description: 'Bad Request'})
     @ApiBody({
-        type: GetMessagesFromChatDto,
         description: 'The channelId',
     })
     async getMessagesFromChat(
-        @Body() channel: GetMessagesFromChatDto,
         @Req() req
-    ):Promise<Video[]>{
+    ):Promise<VideoMessage[]>{
         const userEmailFromToken = req['userEmail'];
         try{
-        const videos = await this.channelFilesService.getMessages(channel.channelId, userEmailFromToken)
+        const videos = await this.channelFilesService.getMessages( userEmailFromToken)
         return videos;
         }
         catch(error){

@@ -13,6 +13,8 @@ import { extname, join } from 'path';
 import * as fs from 'fs';
 import { getChannelByIdDTO } from './dto/get-channel-by-id.dto';
 import { searchAllChannelsDTO } from './dto/search-all-channels.dto';
+import { RemoveMemberDTO } from './dto/remove-member.dto';
+import { ExchangeKeyDTO } from './dto/exchange-key.dto';
 
 
 // Added guard for Api key check
@@ -88,6 +90,39 @@ export class ChannelController {
         const userEmailFromToken = req['userEmail'];
         return this.channelService.addMember(newMembers, userEmailFromToken)
     }
+
+    @Post('removeMember')
+    @ApiOperation({ summary: 'Remove member from channel' })
+    @ApiResponse({ status: 201, description: 'Member is removed.'})
+    @ApiResponse({ status: 401, description: 'Forbidden.' })
+    @ApiBody({
+        type: RemoveMemberDTO,
+        description: 'Json structure for member to be removed',
+    })
+    async removeMemeber(
+        @Body() data: RemoveMemberDTO,
+        @Req() req:any,
+    ): Promise<boolean> {
+        const userEmailFromToken = req['userEmail'];
+        return this.channelService.removeMember(data, userEmailFromToken)
+    }
+
+    @Post('exchangeChannelKey')
+    @ApiOperation({ summary: 'Send channel key to user' })
+    @ApiResponse({ status: 201, description: 'key is sent.'})
+    @ApiResponse({ status: 401, description: 'Forbidden.' })
+    @ApiBody({
+        type: ExchangeKeyDTO,
+        description: 'Json structure for key to be exchanged',
+    })
+    async exchangeKey(
+        @Body() data: ExchangeKeyDTO,
+        @Req() req:any,
+    ): Promise<boolean> {
+        const userEmailFromToken = req['userEmail'];
+        return this.channelService.exchangeKey(data, userEmailFromToken)
+    }
+
 
     @Post('getMembers')
     @ApiOperation({ summary: 'Get channel members' })

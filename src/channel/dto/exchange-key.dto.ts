@@ -1,7 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsArray, IsString, IsUUID } from "class-validator";
 
-export class AddMemberDTO{
+export class ExchangeKeyDTO{
     @ApiProperty({
         example: '14bf67db-f8d9-414a-a602-9748c29d55df',
         description: 'Channel UUID',
@@ -14,5 +14,12 @@ export class AddMemberDTO{
         description: 'New member e-mail',
     })
     @IsString()
-    readonly newMemberEmails: string;
+    readonly receiverEmail: string;
+
+    @ApiProperty({
+        example: 'abbkjal@@#@#@GLHGUEYLDbvhldslvg@',
+        description: 'encrypted key',
+    })
+    @IsString()
+    readonly key: string;
 }

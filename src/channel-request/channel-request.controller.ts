@@ -80,7 +80,7 @@ export class ChannelRequestController {
     ): Promise<boolean> {
         const userEmailFromToken = req['userEmail'];
         try{
-            const valid = await this.channelRequestService.respondChannelRequest(userEmailFromToken, data.requestId, data.response === "true", data.key)
+            const valid = await this.channelRequestService.respondChannelRequest(userEmailFromToken, data.requestId, data.response === "true")
             return valid
         }
         catch(error){

@@ -82,7 +82,6 @@ export class ChannelRequestService {
         email: string,
         requestId: number,
         response: boolean,
-        key: string
     ): Promise<boolean> {
         const ownerUser = await this.prisma.user.findUnique({
             where: {
@@ -111,7 +110,6 @@ export class ChannelRequestService {
                 const args: AddMemberDTO = {
                     channelId: channelRequest.channelId,
                     newMemberEmails: channelRequest.senderEmail,
-                    key: key,
                 };
                 await this.channelService.addMember(args, email);
             }
