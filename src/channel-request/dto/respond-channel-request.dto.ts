@@ -15,11 +15,4 @@ export class RespondChannelRequestDto{
     })
     @IsString()
     readonly response: string;
-
-    @ApiProperty({
-        example: 'dfhajfhdalfhadsjfhdsjfhdsjkfh',
-        description: 'Exchanged encrypted key',
-    })
-    @IsString()
-    readonly key: string;
 }
