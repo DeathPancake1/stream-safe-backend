@@ -36,6 +36,9 @@ export class ChannelRequestService {
             where: {
                 channelId: { in: ownedChannelIds },
             },
+            include: {
+                channel: true
+            }
         });
         return channelRequests;
     }
